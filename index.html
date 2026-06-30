@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#c0392b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nuzlocke">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+  <title>Nuzlocke Tracker – Platin</title>
+</head>
+<body>
+
+  <!-- ============ HEADER ============ -->
+  <header id="appHeader">
+    <div class="header-row">
+      <span class="header-title">Nuzlocke&nbsp;Tracker</span>
+      <button id="openMapBtn" class="icon-btn" data-action="open-map" title="Item-Karte öffnen">🗺️</button>
+    </div>
+    <div id="capDisplay" class="cap-display"><!-- gefüllt von app.js --></div>
+  </header>
+
+  <!-- ============ MAIN ============ -->
+  <main id="appMain">
+
+    <!-- ---- Fortschritt ---- -->
+    <section id="tab-progress" class="tab-panel active">
+      <h2 class="panel-title">Fortschritt</h2>
+      <p class="hint">Hake den erledigten Checkpoint ab. Der nächste offene bestimmt den Level-Cap.</p>
+      <ul id="checkpointList" class="card-list"></ul>
+      <button class="add-btn" data-action="cp-add">+ Checkpoint hinzufügen</button>
+
+      <div class="section-divider">Daten &amp; Backup</div>
+      <div class="data-tools">
+        <button class="tool-btn" data-action="export">⬇️ Export (JSON)</button>
+        <button class="tool-btn" data-action="import">⬆️ Import (JSON)</button>
+        <input type="file" id="importFile" accept="application/json" hidden>
+      </div>
+      <button class="danger-btn" data-action="new-run">🔄 Neuer Run (alles zurücksetzen)</button>
+    </section>
+
+    <!-- ---- Team ---- -->
+    <section id="tab-team" class="tab-panel">
+      <h2 class="panel-title">Team</h2>
+      <p class="hint">Tippe auf ℹ️ für Entwicklung &amp; erlernbare Attacken (Original-Platin-Daten).</p>
+      <ul id="teamList" class="card-list"></ul>
+      <button class="add-btn" data-action="team-add">+ Pokémon hinzufügen</button>
+    </section>
+
+    <!-- ---- Begegnungen ---- -->
+    <section id="tab-encounters" class="tab-panel">
+      <h2 class="panel-title">Begegnungen</h2>
+      <div class="subtab-bar">
+        <button class="subtab active" data-subtab="routes">Routen</button>
+        <button class="subtab" data-subtab="static">Statisch</button>
+        <button class="subtab" data-subtab="fossils">Fossilien</button>
+        <button class="subtab" data-subtab="honeyTrees">Honig</button>
+      </div>
+      <div id="encProgress" class="enc-progress"></div>
+      <div id="honeyControls" class="honey-controls" hidden></div>
+      <ul id="encounterList" class="card-list"></ul>
+      <button class="add-btn" data-action="enc-add">+ Eintrag hinzufügen</button>
+    </section>
+
+    <!-- ---- Märkte ---- -->
+    <section id="tab-markets" class="tab-panel">
+      <h2 class="panel-title">Poké-Märkte</h2>
+      <p class="hint">Trage ein, was du in diesem Run pro Stadt kaufen kannst.</p>
+      <ul id="marketList" class="card-list"></ul>
+      <button class="add-btn" data-action="market-add">+ Stadt hinzufügen</button>
+    </section>
+
+  </main>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav id="bottomNav">
+    <button class="nav-btn active" data-nav="progress"><span class="nav-ico">🏅</span><span>Fortschritt</span></button>
+    <button class="nav-btn" data-nav="team"><span class="nav-ico">⚔️</span><span>Team</span></button>
+    <button class="nav-btn" data-nav="encounters"><span class="nav-ico">🎯</span><span>Begegnungen</span></button>
+    <button class="nav-btn" data-nav="markets"><span class="nav-ico">🛒</span><span>Märkte</span></button>
+  </nav>
+
+  <!-- ============ MODAL (Pokédex) ============ -->
+  <div id="modalOverlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <div id="modalContent"></div>
+      <button class="modal-close" data-action="modal-close">Schließen</button>
+    </div>
+  </div>
+
+  <!-- ============ GENERISCHER EINGABE-DIALOG ============ -->
+  <div id="promptOverlay" class="modal-overlay" hidden>
+    <div class="modal prompt-modal">
+      <h3 id="promptTitle"></h3>
+      <div id="promptFields"></div>
+      <div class="prompt-actions">
+        <button class="tool-btn" data-action="prompt-cancel">Abbrechen</button>
+        <button class="primary-btn" data-action="prompt-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="pokedex.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

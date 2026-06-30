@@ -1,0 +1,11 @@
+# OS / Editor
+Thumbs.db
+.DS_Store
+*.log
+
+# Lokaler PokeAPI-Cache (liegt normalerweise in %TEMP%)
+tools/.cache/
+pokeapi-cache/
+
+# Lokale Claude-Einstellungen (Vorschau-Config wird committet, lokale Overrides nicht)
+.claude/settings.local.json
