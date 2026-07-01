@@ -110,15 +110,18 @@
   function renderTeam() {
     const list = $('#teamList');
     if (!state.team.length) {
-      list.innerHTML = '<li class="card" style="color:var(--text-dim);text-align:center">Noch keine Pokémon. Tippe unten auf „+ Pokémon hinzufügen".</li>';
+      list.innerHTML = '<li class="card" style="color:var(--text-dim);text-align:center">Noch keine Pokémon. Setze eine Begegnung auf „Gefangen" oder tippe auf „+ Pokémon hinzufügen".</li>';
       return;
     }
     list.innerHTML = state.team.map(p => {
       const hasSp = !!(p.species && p.species.trim());
+      const sub = [];
+      if (p.origin) sub.push('gefangen: ' + esc(p.origin));
+      if (p.nickname && p.nickname.trim()) sub.push('„' + esc(p.nickname) + '"');
       return `<li class="card team-card">
         <div class="team-main">
-          <div class="team-nick">${esc(p.nickname || '(ohne Namen)')}</div>
-          <div class="team-species ${hasSp ? '' : 'empty'}">${hasSp ? esc(p.species) : 'keine Spezies'}</div>
+          <div class="team-nick ${hasSp ? '' : 'empty'}">${hasSp ? esc(p.species) : '(keine Spezies)'}</div>
+          ${sub.length ? `<div class="team-species">${sub.join(' · ')}</div>` : ''}
         </div>
         ${hasSp ? `<button class="mini-btn" data-action="dex" data-species="${esc(p.species)}">ℹ️</button>` : ''}
         <button class="mini-btn" data-action="team-edit" data-id="${p.id}">✎</button>
@@ -347,6 +350,20 @@
   const findEnc = id => state.encounters[ui.subtab].find(x => x.id === id);
   const findMarket = id => state.markets.find(m => m.id === id);
 
+  // Auto-Team-Sync: eine Begegnung auf "Gefangen" (mit Spezies) erscheint automatisch im Team.
+  // Verknüpfte Team-Einträge tragen fromEncounter; manuell angelegte nicht.
+  function syncTeamForEncounter(enc) {
+    const idx = state.team.findIndex(p => p.fromEncounter === enc.id);
+    const shouldExist = enc.status === 'caught' && enc.species && enc.species.trim();
+    if (shouldExist) {
+      if (idx === -1) state.team.push({ id: uid(), species: enc.species.trim(), fromEncounter: enc.id, origin: enc.name });
+      else { state.team[idx].species = enc.species.trim(); state.team[idx].origin = enc.name; }
+    } else if (idx !== -1) {
+      state.team.splice(idx, 1);
+    }
+    save('team');
+  }
+
   // ===================== Event-Handling =====================
   document.addEventListener('click', e => {
     // Backdrop-Klick schließt Modals
@@ -428,20 +445,20 @@
       // ---- Team ----
       case 'team-add':
         openPrompt('Pokémon hinzufügen', [
-          { key: 'nickname', label: 'Spitzname', placeholder: 'z. B. Bello' },
-          { key: 'species', label: 'Spezies (randomisiert)', placeholder: 'z. B. Glurak' },
+          { key: 'species', label: 'Spezies', placeholder: 'z. B. Glurak' },
+          { key: 'nickname', label: 'Spitzname (optional)', placeholder: 'egal' },
         ], v => {
-          if (!v.nickname && !v.species) return;
-          state.team.push({ id: uid(), nickname: v.nickname, species: v.species });
+          if (!v.species && !v.nickname) return;
+          state.team.push({ id: uid(), species: v.species, nickname: v.nickname });
           save('team'); renderTeam();
         });
         break;
       case 'team-edit': {
         const p = findTeam(id);
         openPrompt('Pokémon bearbeiten', [
-          { key: 'nickname', label: 'Spitzname', value: p.nickname },
           { key: 'species', label: 'Spezies', value: p.species },
-        ], v => { p.nickname = v.nickname; p.species = v.species; save('team'); renderTeam(); });
+          { key: 'nickname', label: 'Spitzname (optional)', value: p.nickname || '' },
+        ], v => { p.species = v.species; p.nickname = v.nickname; save('team'); renderTeam(); });
         break;
       }
       case 'team-del': {
@@ -456,7 +473,7 @@
       case 'enc-status': {
         const it = findEnc(id);
         it.status = (STATUS[it.status] || STATUS.open).next;
-        save('encounters'); renderEncounters();
+        save('encounters'); syncTeamForEncounter(it); renderEncounters(); renderTeam();
         break;
       }
       case 'enc-add': {
@@ -482,7 +499,7 @@
         if (cat.hasNote) fields.push({ key: 'note', label: 'Notiz', value: it.note || '' });
         openPrompt('Eintrag bearbeiten', fields, v => {
           it.name = v.name; if (cat.hasNote) it.note = v.note;
-          save('encounters'); renderEncounters();
+          save('encounters'); syncTeamForEncounter(it); renderEncounters(); renderTeam();
         });
         break;
       }
@@ -490,7 +507,9 @@
         const it = findEnc(id);
         if (confirm(`„${it.name}" löschen?`)) {
           state.encounters[ui.subtab] = state.encounters[ui.subtab].filter(x => x.id !== id);
-          save('encounters'); renderEncounters();
+          const ti = state.team.findIndex(p => p.fromEncounter === id);
+          if (ti !== -1) { state.team.splice(ti, 1); save('team'); }
+          save('encounters'); renderEncounters(); renderTeam();
         }
         break;
       }
@@ -551,7 +570,7 @@
     const sp = e.target.closest('[data-action="enc-species"]');
     if (sp) {
       const it = findEnc(sp.dataset.id);
-      if (it) { it.species = e.target.value; save('encounters'); renderEncounters(); }
+      if (it) { it.species = e.target.value; save('encounters'); syncTeamForEncounter(it); renderEncounters(); renderTeam(); }
     }
   });
 

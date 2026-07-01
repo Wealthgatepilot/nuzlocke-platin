@@ -111,6 +111,7 @@ input { font-family: inherit; font-size: 16px; }
 .team-card { display: flex; align-items: center; gap: 10px; }
 .team-main { flex: 1; min-width: 0; }
 .team-nick { font-weight: 700; font-size: 1.05rem; }
+.team-nick.empty { color: var(--text-dim); font-style: italic; }
 .team-species { font-size: .85rem; color: var(--text-dim); }
 .team-species.empty { font-style: italic; }
 
