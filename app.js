@@ -47,6 +47,69 @@
     return null;
   }
 
+  // ===================== Evolutions-Familien (Dupe-/Art-Klausel) =====================
+  let FAMILY = null; // key -> { rep, members:[{key,name}] }
+  function speciesKey(species) {
+    const d = dexLookup(species);
+    return d ? normKey(d.name) : normKey(species);
+  }
+  function buildFamilyIndex() {
+    FAMILY = {};
+    if (typeof POKEDEX === 'undefined') return;
+    const adj = {}, nameOf = {};
+    for (const key in POKEDEX) {
+      nameOf[key] = POKEDEX[key].name;
+      adj[key] = adj[key] || new Set();
+      (POKEDEX[key].evolution || []).forEach(e => {
+        const tk = normKey(e.to);
+        if (!tk) return;
+        adj[key].add(tk);
+        (adj[tk] = adj[tk] || new Set()).add(key);
+        if (!nameOf[tk]) nameOf[tk] = (POKEDEX[tk] && POKEDEX[tk].name) || e.to;
+      });
+    }
+    const seen = new Set();
+    for (const key in adj) {
+      if (seen.has(key)) continue;
+      const comp = [], stack = [key];
+      seen.add(key);
+      while (stack.length) {
+        const n = stack.pop(); comp.push(n);
+        (adj[n] || new Set()).forEach(m => { if (!seen.has(m)) { seen.add(m); stack.push(m); } });
+      }
+      const members = comp.map(k => ({ key: k, name: nameOf[k] || k }))
+        .sort((a, b) => ((POKEDEX[a.key] ? POKEDEX[a.key].id : 999) - (POKEDEX[b.key] ? POKEDEX[b.key].id : 999)));
+      const rep = comp.slice().sort()[0];
+      comp.forEach(k => { FAMILY[k] = { rep, members }; });
+    }
+  }
+  function familyOf(species) {
+    const k = speciesKey(species);
+    if (!k) return null;
+    if (FAMILY && FAMILY[k]) return FAMILY[k];
+    return { rep: k, members: [{ key: k, name: species }] }; // Unbekannt -> Einzeltier
+  }
+  function allEncounters() {
+    const e = state.encounters;
+    return [...e.routes, ...e.static, ...e.fossils, ...e.honeyTrees];
+  }
+  function caughtSpeciesKeySet() {
+    const s = new Set();
+    allEncounters().forEach(x => { if (x.status === 'caught' && x.species && x.species.trim()) s.add(speciesKey(x.species)); });
+    return s;
+  }
+  // rep der Familie -> id des ERSTEN gefangenen Mitglieds (in Listenreihenfolge)
+  function familyFirstCatch() {
+    const m = {};
+    allEncounters().forEach(x => {
+      if (x.status === 'caught' && x.species && x.species.trim()) {
+        const fam = familyOf(x.species);
+        if (fam && m[fam.rep] === undefined) m[fam.rep] = x.id;
+      }
+    });
+    return m;
+  }
+
   // ===================== UI-Status =====================
   const ui = { tab: 'progress', subtab: 'routes', openMarkets: new Set() };
 
@@ -169,9 +232,19 @@
       list.innerHTML = `<li class="card" style="color:var(--text-dim);text-align:center">Keine Einträge. Tippe unten auf „+ Eintrag hinzufügen".</li>`;
       return;
     }
+    const firstCatch = familyFirstCatch();
+    const idName = {};
+    allEncounters().forEach(x => { idName[x.id] = x.name; });
     list.innerHTML = items.map(it => {
       const st = STATUS[it.status] || STATUS.open;
       const hasSp = !!(it.species && it.species.trim());
+      let dupeHtml = '';
+      if (hasSp) {
+        const fam = familyOf(it.species);
+        if (fam && firstCatch[fam.rep] !== undefined && firstCatch[fam.rep] !== it.id) {
+          dupeHtml = `<div class="dupe-badge">⚠️ Dupe – Familie schon gefangen: ${esc(idName[firstCatch[fam.rep]] || '?')}</div>`;
+        }
+      }
       return `<li class="card enc-card">
         <div class="enc-top">
           <div class="enc-name">${esc(it.name)}${it.note ? `<span class="enc-note">${esc(it.note)}</span>` : ''}</div>
@@ -184,6 +257,7 @@
           ${hasSp ? `<button class="mini-btn" data-action="dex" data-species="${esc(it.species)}">ℹ️</button>` : ''}
           <button class="status-pill ${st.cls}" data-action="enc-status" data-id="${it.id}">${st.label}</button>
         </div>
+        ${dupeHtml}
       </li>`;
     }).join('');
   }
@@ -253,10 +327,22 @@
 
     const serebii = `https://www.serebii.net/pokedex-dp/${String(d.id).padStart(3, '0')}.shtml`;
 
+    const fam = familyOf(d.name);
+    const caughtSet = caughtSpeciesKeySet();
+    const anyCaught = fam.members.some(m => caughtSet.has(m.key));
+    const famHtml =
+      `<div class="dex-section-title">Evo-Familie · Dupe-Klausel</div>` +
+      (anyCaught
+        ? `<div class="dupe-banner">⚠️ Familie bereits gefangen → weitere Begegnungen sind Dupes (Reroll).</div>`
+        : `<div class="ok-banner">✓ Familie noch frei – fangbar.</div>`) +
+      `<div class="fam-list">${fam.members.map(m =>
+        `<span class="fam-member ${caughtSet.has(m.key) ? 'caught' : ''}">${caughtSet.has(m.key) ? '✓ ' : ''}${esc(m.name)}</span>`).join('')}</div>`;
+
     box.innerHTML =
       `<div class="dex-head"><span class="dex-name">${esc(d.name)}</span><span class="dex-no">#${String(d.id).padStart(3, '0')}</span></div>
        <div class="dex-types">${types}</div>
        ${d._incomplete ? '<div class="dex-notfound" style="margin-bottom:8px">Hinweis: Daten teilweise aus Diamant/Perl (kein vollständiger Platin-Datensatz).</div>' : ''}
+       ${famHtml}
        <div class="dex-section-title">Entwicklung</div>${evo}
        <div class="dex-section-title">Level-Attacken <span class="lv1-tag">(Lv 1 = von Beginn / nachlernbar)</span></div>${lvl}
        <div class="dex-section-title">TM / VM</div>${tm}
@@ -593,6 +679,7 @@
 
   // ===================== Init =====================
   load();
+  buildFamilyIndex();
   renderAll();
 
   if ('serviceWorker' in navigator) {
