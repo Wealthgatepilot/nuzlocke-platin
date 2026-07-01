@@ -1,0 +1,807 @@
+{
+    "_meta":  {
+                  "app":  "nuzlocke-platin",
+                  "version":  1,
+                  "note":  "Aktueller Run-Import (Routen + Team). Ueberschreibt Checkpoints/Maerkte NICHT.",
+                  "exported":  "2026-07-01T23:41:11"
+              },
+    "nz_encounters":  {
+                          "routes":  [
+                                         {
+                                             "id":  "r01",
+                                             "name":  "Wahrheitsufer",
+                                             "species":  "Sichlor",
+                                             "status":  "caught",
+                                             "note":  "Vorplatz See der Wahrheit"
+                                         },
+                                         {
+                                             "id":  "r02",
+                                             "name":  "Route 201",
+                                             "species":  "Pikachu",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r03",
+                                             "name":  "Route 202",
+                                             "species":  "Ninjask",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r04",
+                                             "name":  "Route 219",
+                                             "species":  "Azumarill",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r05",
+                                             "name":  "Zweiblattdorf",
+                                             "species":  "Bronzel",
+                                             "status":  "caught",
+                                             "note":  "Angeln"
+                                         },
+                                         {
+                                             "id":  "r06",
+                                             "name":  "Route 204",
+                                             "species":  "Rihorn",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r07",
+                                             "name":  "Route 203",
+                                             "species":  "Skuntank",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r08",
+                                             "name":  "Erzelingen-Tor",
+                                             "species":  "Krawumms",
+                                             "status":  "caught",
+                                             "note":  "Höhle"
+                                         },
+                                         {
+                                             "id":  "r09",
+                                             "name":  "Erzelingen-Mine",
+                                             "species":  "Despotar",
+                                             "status":  "caught",
+                                             "note":  "Höhle"
+                                         },
+                                         {
+                                             "id":  "r10",
+                                             "name":  "Route 207",
+                                             "species":  "Mauzi",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r11",
+                                             "name":  "Verwüsteter Pfad",
+                                             "species":  "Arkani",
+                                             "status":  "caught",
+                                             "note":  "Höhle"
+                                         },
+                                         {
+                                             "id":  "r12",
+                                             "name":  "Kraftwerk",
+                                             "species":  "Papungha",
+                                             "status":  "caught",
+                                             "note":  "Valley Windworks"
+                                         },
+                                         {
+                                             "id":  "r13",
+                                             "name":  "Route 205",
+                                             "species":  "Sandamer",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r14",
+                                             "name":  "Ewigwald",
+                                             "species":  "Arceus",
+                                             "status":  "caught",
+                                             "note":  "Eterna Forest"
+                                         },
+                                         {
+                                             "id":  "r15",
+                                             "name":  "Altes Anwesen",
+                                             "species":  "Tuska",
+                                             "status":  "caught",
+                                             "note":  "Old Chateau"
+                                         },
+                                         {
+                                             "id":  "r16",
+                                             "name":  "Ewigenau",
+                                             "species":  "Frosdedje",
+                                             "status":  "caught",
+                                             "note":  "Angeln"
+                                         },
+                                         {
+                                             "id":  "r17",
+                                             "name":  "Route 211 (West)",
+                                             "species":  "Baldorfish",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r18",
+                                             "name":  "Route 206",
+                                             "species":  "Honweisel",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r19",
+                                             "name":  "Bizarre Höhle",
+                                             "species":  "Magnayen",
+                                             "status":  "caught",
+                                             "note":  "Wayward Cave"
+                                         },
+                                         {
+                                             "id":  "r20",
+                                             "name":  "Kraterberg",
+                                             "species":  "Omot",
+                                             "status":  "caught",
+                                             "note":  "Mt. Coronet"
+                                         },
+                                         {
+                                             "id":  "r21",
+                                             "name":  "Route 208",
+                                             "species":  "Pionskora",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r22",
+                                             "name":  "Route 209",
+                                             "species":  "Manaphy",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r23",
+                                             "name":  "Trostu-Ruinen",
+                                             "species":  "",
+                                             "status":  "failed",
+                                             "note":  "Icognito"
+                                         },
+                                         {
+                                             "id":  "r24",
+                                             "name":  "Turm der Ruhenden",
+                                             "species":  "Bojelin",
+                                             "status":  "failed",
+                                             "note":  "Lost Tower"
+                                         },
+                                         {
+                                             "id":  "r25",
+                                             "name":  "Route 210 (Süd)",
+                                             "species":  "Lavados",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r26",
+                                             "name":  "Route 215",
+                                             "species":  "Tauboss",
+                                             "status":  "failed"
+                                         },
+                                         {
+                                             "id":  "r27",
+                                             "name":  "Route 214",
+                                             "species":  "Makuhita",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r28",
+                                             "name":  "Maniac-Tunnel",
+                                             "species":  "Bibor",
+                                             "status":  "caught"
+                                         },
+                                         {
+                                             "id":  "r29",
+                                             "name":  "Kühnheitsufer",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Vorplatz See der Kühnheit"
+                                         },
+                                         {
+                                             "id":  "r30",
+                                             "name":  "Route 213",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r31",
+                                             "name":  "Weideburg",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Stadt – Angeln"
+                                         },
+                                         {
+                                             "id":  "r32",
+                                             "name":  "Route 212 (Süd)",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r33",
+                                             "name":  "Route 210 (Nord)",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r34",
+                                             "name":  "Elyses",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Stadt – Angeln"
+                                         },
+                                         {
+                                             "id":  "r35",
+                                             "name":  "Route 211 (Ost)",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r36",
+                                             "name":  "Route 218",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r37",
+                                             "name":  "Fleetburg",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Stadt – Angeln"
+                                         },
+                                         {
+                                             "id":  "r38",
+                                             "name":  "Eiseninsel",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Iron Island"
+                                         },
+                                         {
+                                             "id":  "r39",
+                                             "name":  "Feurio-Hütte",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Fuego Ironworks"
+                                         },
+                                         {
+                                             "id":  "r40",
+                                             "name":  "Großmoor",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Safari-Zone"
+                                         },
+                                         {
+                                             "id":  "r41",
+                                             "name":  "Route 212 (Nord)",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r42",
+                                             "name":  "Trophäengarten",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r43",
+                                             "name":  "Route 220",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Surfen"
+                                         },
+                                         {
+                                             "id":  "r44",
+                                             "name":  "Route 221",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r45",
+                                             "name":  "Route 216",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r46",
+                                             "name":  "Route 217",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r47",
+                                             "name":  "Stärkeufer",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Vorplatz See der Stärke"
+                                         },
+                                         {
+                                             "id":  "r48",
+                                             "name":  "Route 222",
+                                             "species":  "",
+                                             "status":  "open"
+                                         },
+                                         {
+                                             "id":  "r49",
+                                             "name":  "Sonnewik",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Stadt – Angeln"
+                                         },
+                                         {
+                                             "id":  "r50",
+                                             "name":  "Route 223",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Surfen"
+                                         },
+                                         {
+                                             "id":  "r51",
+                                             "name":  "Siegesstraße",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Victory Road"
+                                         },
+                                         {
+                                             "id":  "r52",
+                                             "name":  "Route 224",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game"
+                                         },
+                                         {
+                                             "id":  "r53",
+                                             "name":  "Route 225",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game"
+                                         },
+                                         {
+                                             "id":  "r54",
+                                             "name":  "Route 226",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game"
+                                         },
+                                         {
+                                             "id":  "r55",
+                                             "name":  "Route 227",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game"
+                                         },
+                                         {
+                                             "id":  "r56",
+                                             "name":  "Kahlberg",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game · Stark Mountain"
+                                         },
+                                         {
+                                             "id":  "r57",
+                                             "name":  "Route 228",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game"
+                                         },
+                                         {
+                                             "id":  "r58",
+                                             "name":  "Route 229",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game"
+                                         },
+                                         {
+                                             "id":  "r59",
+                                             "name":  "Erholungsareal",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game"
+                                         },
+                                         {
+                                             "id":  "r60",
+                                             "name":  "Route 230",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game"
+                                         },
+                                         {
+                                             "id":  "r61",
+                                             "name":  "Scheidequelle",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game"
+                                         },
+                                         {
+                                             "id":  "r62",
+                                             "name":  "Höhle der Umkehr",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game"
+                                         }
+                                     ],
+                          "static":  [
+                                         {
+                                             "id":  "s01",
+                                             "name":  "Driftlon – Kraftwerk Blütenhain",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Freitags nach Mars-Kampf, Lv 15"
+                                         },
+                                         {
+                                             "id":  "s02",
+                                             "name":  "Rotom – Altes Herrenhaus",
+                                             "species":  "Schlukwech",
+                                             "status":  "caught",
+                                             "note":  "Nachts, Lv 20"
+                                         },
+                                         {
+                                             "id":  "s03",
+                                             "name":  "Spiritomb – Heiliger Turm",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Route 209, Lv 25"
+                                         },
+                                         {
+                                             "id":  "s04",
+                                             "name":  "Selfe – See der Stärke",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Lv 50 (Lake Acuity)"
+                                         },
+                                         {
+                                             "id":  "s05",
+                                             "name":  "Vesprit – See der Wahrheit",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Roamend, Lv 50 (Lake Verity)"
+                                         },
+                                         {
+                                             "id":  "s06",
+                                             "name":  "Tobutz – See der Kühnheit",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Lv 50 (Lake Valor)"
+                                         },
+                                         {
+                                             "id":  "s07",
+                                             "name":  "Giratina – Zerrwelt",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Lv 47"
+                                         },
+                                         {
+                                             "id":  "s08",
+                                             "name":  "Dialga – Speerspitze",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game, Lv 70"
+                                         },
+                                         {
+                                             "id":  "s09",
+                                             "name":  "Palkia – Speerspitze",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game, Lv 70"
+                                         },
+                                         {
+                                             "id":  "s10",
+                                             "name":  "Heatran – Kahlberg",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Post-Game, Lv 50"
+                                         },
+                                         {
+                                             "id":  "s11",
+                                             "name":  "Regigigas – Blizzach-Tempel",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Lv 1"
+                                         },
+                                         {
+                                             "id":  "s12",
+                                             "name":  "Regirock – Felsengipfel-Ruine",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Lv 30"
+                                         },
+                                         {
+                                             "id":  "s13",
+                                             "name":  "Regice – Eisberg-Ruine",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Lv 30"
+                                         },
+                                         {
+                                             "id":  "s14",
+                                             "name":  "Registeel – Eisen-Ruine",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Lv 30"
+                                         },
+                                         {
+                                             "id":  "s15",
+                                             "name":  "Cresselia – Vollmondinsel",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Roamend, Lv 50"
+                                         },
+                                         {
+                                             "id":  "s16",
+                                             "name":  "Arktos – Sinnoh (Roamend)",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Lv 60"
+                                         },
+                                         {
+                                             "id":  "s17",
+                                             "name":  "Zapdos – Sinnoh (Roamend)",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Lv 60"
+                                         },
+                                         {
+                                             "id":  "s18",
+                                             "name":  "Lavados – Sinnoh (Roamend)",
+                                             "species":  "",
+                                             "status":  "open",
+                                             "note":  "Lv 60"
+                                         }
+                                     ],
+                          "fossils":  [
+                                          {
+                                              "id":  "f01",
+                                              "name":  "Schädelstein → Koknodon",
+                                              "species":  "Pionskora",
+                                              "status":  "caught",
+                                              "note":  "Untergrund (ungerade Trainer-ID)"
+                                          },
+                                          {
+                                              "id":  "f02",
+                                              "name":  "Panzerstein → Schilditas",
+                                              "species":  "",
+                                              "status":  "open",
+                                              "note":  "Untergrund (gerade Trainer-ID)"
+                                          },
+                                          {
+                                              "id":  "f03",
+                                              "name":  "Spiralstein → Amonitas",
+                                              "species":  "Traumato",
+                                              "status":  "caught",
+                                              "note":  "Untergrund (nach Nationaldex)"
+                                          },
+                                          {
+                                              "id":  "f04",
+                                              "name":  "Kuppelstein → Kabuto",
+                                              "species":  "Smogmog",
+                                              "status":  "caught",
+                                              "note":  "Untergrund (nach Nationaldex)"
+                                          },
+                                          {
+                                              "id":  "f05",
+                                              "name":  "Uralt-Bernstein → Aerodactyl",
+                                              "species":  "",
+                                              "status":  "open",
+                                              "note":  "Untergrund (nach Nationaldex)"
+                                          },
+                                          {
+                                              "id":  "f06",
+                                              "name":  "Klauenstein → Liliep",
+                                              "species":  "",
+                                              "status":  "open",
+                                              "note":  "Untergrund (nach Nationaldex)"
+                                          },
+                                          {
+                                              "id":  "f07",
+                                              "name":  "Wurzelstein → Armaldo",
+                                              "species":  "",
+                                              "status":  "open",
+                                              "note":  "Untergrund (nach Nationaldex)"
+                                          }
+                                      ],
+                          "honeyTrees":  [
+                                             {
+                                                 "id":  "h01",
+                                                 "name":  "Honigbaum – Kraftwerk",
+                                                 "species":  "Golbat",
+                                                 "status":  "caught"
+                                             },
+                                             {
+                                                 "id":  "h02",
+                                                 "name":  "Honigbaum – Route 205",
+                                                 "species":  "",
+                                                 "status":  "open"
+                                             },
+                                             {
+                                                 "id":  "h03",
+                                                 "name":  "Honigbaum – Flori",
+                                                 "species":  "Granbull",
+                                                 "status":  "caught"
+                                             }
+                                         ]
+                      },
+    "nz_team":  [
+                    {
+                        "id":  "tr01",
+                        "species":  "Sichlor",
+                        "fromEncounter":  "r01",
+                        "origin":  "Wahrheitsufer"
+                    },
+                    {
+                        "id":  "tr02",
+                        "species":  "Pikachu",
+                        "fromEncounter":  "r02",
+                        "origin":  "Route 201"
+                    },
+                    {
+                        "id":  "tr03",
+                        "species":  "Ninjask",
+                        "fromEncounter":  "r03",
+                        "origin":  "Route 202"
+                    },
+                    {
+                        "id":  "tr04",
+                        "species":  "Azumarill",
+                        "fromEncounter":  "r04",
+                        "origin":  "Route 219"
+                    },
+                    {
+                        "id":  "tr05",
+                        "species":  "Bronzel",
+                        "fromEncounter":  "r05",
+                        "origin":  "Zweiblattdorf"
+                    },
+                    {
+                        "id":  "tr06",
+                        "species":  "Rihorn",
+                        "fromEncounter":  "r06",
+                        "origin":  "Route 204"
+                    },
+                    {
+                        "id":  "tr07",
+                        "species":  "Skuntank",
+                        "fromEncounter":  "r07",
+                        "origin":  "Route 203"
+                    },
+                    {
+                        "id":  "tr08",
+                        "species":  "Krawumms",
+                        "fromEncounter":  "r08",
+                        "origin":  "Erzelingen-Tor"
+                    },
+                    {
+                        "id":  "tr09",
+                        "species":  "Despotar",
+                        "fromEncounter":  "r09",
+                        "origin":  "Erzelingen-Mine"
+                    },
+                    {
+                        "id":  "tr10",
+                        "species":  "Mauzi",
+                        "fromEncounter":  "r10",
+                        "origin":  "Route 207"
+                    },
+                    {
+                        "id":  "tr11",
+                        "species":  "Arkani",
+                        "fromEncounter":  "r11",
+                        "origin":  "Verwüsteter Pfad"
+                    },
+                    {
+                        "id":  "tr12",
+                        "species":  "Papungha",
+                        "fromEncounter":  "r12",
+                        "origin":  "Kraftwerk"
+                    },
+                    {
+                        "id":  "tr13",
+                        "species":  "Sandamer",
+                        "fromEncounter":  "r13",
+                        "origin":  "Route 205"
+                    },
+                    {
+                        "id":  "tr14",
+                        "species":  "Arceus",
+                        "fromEncounter":  "r14",
+                        "origin":  "Ewigwald"
+                    },
+                    {
+                        "id":  "tr15",
+                        "species":  "Tuska",
+                        "fromEncounter":  "r15",
+                        "origin":  "Altes Anwesen"
+                    },
+                    {
+                        "id":  "tr16",
+                        "species":  "Frosdedje",
+                        "fromEncounter":  "r16",
+                        "origin":  "Ewigenau"
+                    },
+                    {
+                        "id":  "tr17",
+                        "species":  "Baldorfish",
+                        "fromEncounter":  "r17",
+                        "origin":  "Route 211 (West)"
+                    },
+                    {
+                        "id":  "tr18",
+                        "species":  "Honweisel",
+                        "fromEncounter":  "r18",
+                        "origin":  "Route 206"
+                    },
+                    {
+                        "id":  "tr19",
+                        "species":  "Magnayen",
+                        "fromEncounter":  "r19",
+                        "origin":  "Bizarre Höhle"
+                    },
+                    {
+                        "id":  "tr20",
+                        "species":  "Omot",
+                        "fromEncounter":  "r20",
+                        "origin":  "Kraterberg"
+                    },
+                    {
+                        "id":  "tr21",
+                        "species":  "Pionskora",
+                        "fromEncounter":  "r21",
+                        "origin":  "Route 208"
+                    },
+                    {
+                        "id":  "tr22",
+                        "species":  "Manaphy",
+                        "fromEncounter":  "r22",
+                        "origin":  "Route 209"
+                    },
+                    {
+                        "id":  "tr25",
+                        "species":  "Lavados",
+                        "fromEncounter":  "r25",
+                        "origin":  "Route 210 (Süd)"
+                    },
+                    {
+                        "id":  "tr27",
+                        "species":  "Makuhita",
+                        "fromEncounter":  "r27",
+                        "origin":  "Route 214"
+                    },
+                    {
+                        "id":  "tr28",
+                        "species":  "Bibor",
+                        "fromEncounter":  "r28",
+                        "origin":  "Maniac-Tunnel"
+                    },
+                    {
+                        "id":  "ts02",
+                        "species":  "Schlukwech",
+                        "fromEncounter":  "s02",
+                        "origin":  "Rotom – Altes Herrenhaus"
+                    },
+                    {
+                        "id":  "tf01",
+                        "species":  "Pionskora",
+                        "fromEncounter":  "f01",
+                        "origin":  "Schädelstein → Koknodon"
+                    },
+                    {
+                        "id":  "tf03",
+                        "species":  "Traumato",
+                        "fromEncounter":  "f03",
+                        "origin":  "Spiralstein → Amonitas"
+                    },
+                    {
+                        "id":  "tf04",
+                        "species":  "Smogmog",
+                        "fromEncounter":  "f04",
+                        "origin":  "Kuppelstein → Kabuto"
+                    },
+                    {
+                        "id":  "th01",
+                        "species":  "Golbat",
+                        "fromEncounter":  "h01",
+                        "origin":  "Honigbaum – Kraftwerk"
+                    },
+                    {
+                        "id":  "th03",
+                        "species":  "Granbull",
+                        "fromEncounter":  "h03",
+                        "origin":  "Honigbaum – Flori"
+                    }
+                ]
+}
