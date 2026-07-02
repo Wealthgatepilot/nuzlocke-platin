@@ -321,7 +321,9 @@ for ($id = $StartId; $id -le $EndId; $id++) {
     [void]$sb.Append('id: ').Append($id).Append(', ')
     [void]$sb.Append('name: "').Append((Esc $nameDe)).Append('", ')
     [void]$sb.Append('nameEn: "').Append((Esc $nameEn)).Append('", ')
-    [void]$sb.Append('types: [').Append((($typesDe | ForEach-Object { '"' + (Esc $_) + '"' }) -join ', ')).Append('],')
+    [void]$sb.Append('types: [').Append((($typesDe | ForEach-Object { '"' + (Esc $_) + '"' }) -join ', ')).Append('], ')
+    $capture = if ($null -ne $sp.capture_rate) { [int]$sp.capture_rate } else { 0 }
+    [void]$sb.Append('catchRate: ').Append($capture).Append(',')
     if ($incomplete) { [void]$sb.Append(' _incomplete: true,') }
     [void]$sb.Append("`n")
 

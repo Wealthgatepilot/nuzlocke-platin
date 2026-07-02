@@ -776,10 +776,129 @@
     e.target.value = '';
   });
 
+  // ===================== Fangraten-Rechner (Gen 4) =====================
+  const BALLS = [
+    { id: 'poke',    name: 'Pokéball',    mult: 1 },
+    { id: 'super',   name: 'Superball',   mult: 1.5 },
+    { id: 'hyper',   name: 'Hyperball',   mult: 2 },
+    { id: 'meister', name: 'Meisterball', master: true },
+    { id: 'netz',    name: 'Netzball',    cond: 'type' },
+    { id: 'tauch',   name: 'Tauchball',   cond: 'toggle', mult: 3.5, toggleLabel: 'Beim Angeln / Surfen' },
+    { id: 'nest',    name: 'Nestball',    cond: 'level' },
+    { id: 'wieder',  name: 'Wiederball',  cond: 'toggle', mult: 3, toggleLabel: 'Art schon gefangen', autoCaught: true },
+    { id: 'timer',   name: 'Timerball',   cond: 'turns' },
+    { id: 'flott',   name: 'Flottball',   cond: 'toggle', mult: 4, toggleLabel: 'Erster Zug' },
+    { id: 'finster', name: 'Finsterball', cond: 'toggle', mult: 3.5, toggleLabel: 'Nachts / in Höhle' },
+    { id: 'luxus',   name: 'Luxusball',   mult: 1 },
+    { id: 'premier', name: 'Premierball', mult: 1 },
+    { id: 'heil',    name: 'Heilball',    mult: 1 },
+  ];
+  const ballById = id => BALLS.find(b => b.id === id);
+
+  function currentBallMult(ball) {
+    if (!ball) return 1;
+    if (ball.master) return Infinity;
+    if (!ball.cond) return ball.mult;
+    const sit = $('#crSituational');
+    switch (ball.cond) {
+      case 'type': {
+        const d = dexLookup($('#crSpecies').value);
+        const t = d ? d.types : [];
+        return (t.indexOf('Wasser') >= 0 || t.indexOf('Käfer') >= 0) ? 3 : 1;
+      }
+      case 'toggle': {
+        const cb = sit.querySelector('input[type=checkbox]');
+        return (cb && cb.checked) ? ball.mult : 1;
+      }
+      case 'level': {
+        const lv = parseInt((sit.querySelector('input[type=number]') || {}).value, 10) || 1;
+        return Math.max(1, (40 - lv) / 10);
+      }
+      case 'turns': {
+        const tn = parseInt((sit.querySelector('input[type=number]') || {}).value, 10) || 1;
+        return Math.min(4, (tn + 10) / 10);
+      }
+      default: return ball.mult || 1;
+    }
+  }
+
+  // Gen-4-Fangwahrscheinlichkeit pro Wurf
+  function catchChance(rate, hpFrac, statusMult, ballMult) {
+    if (ballMult === Infinity) return 1;
+    const a = Math.floor(((3 - 2 * hpFrac) * rate * ballMult / 3) * statusMult);
+    if (a >= 255) return 1;
+    if (a <= 0) return 0;
+    const b = 1048560 / Math.sqrt(Math.sqrt(16711680 / a));
+    return Math.pow(b / 65536, 4);
+  }
+
+  function renderCatchSituational(ball) {
+    const box = $('#crSituational');
+    if (!ball || ball.master || !ball.cond) { box.innerHTML = ''; return; }
+    if (ball.cond === 'type') {
+      box.innerHTML = `<div class="cr-note">Netzball: automatisch ×3 bei Wasser-/Käfer-Pokémon, sonst ×1.</div>`;
+    } else if (ball.cond === 'toggle') {
+      const checked = ball.autoCaught && caughtSpeciesKeySet().has(speciesKey($('#crSpecies').value)) ? 'checked' : '';
+      box.innerHTML = `<label class="cr-check"><input type="checkbox" ${checked}> ${esc(ball.toggleLabel)} (×${ball.mult})</label>`;
+    } else if (ball.cond === 'level') {
+      box.innerHTML = `<label class="cr-label">Level des wilden Pokémon <input type="number" min="1" max="100" value="20"></label>`;
+    } else if (ball.cond === 'turns') {
+      box.innerHTML = `<label class="cr-label">Runden im Kampf <input type="number" min="1" max="99" value="1"></label>`;
+    }
+  }
+
+  function recalcCatch() {
+    const rate = parseInt($('#crRate').value, 10) || 0;
+    const hp = parseInt($('#crHp').value, 10) || 1;
+    $('#crHpVal').textContent = hp + ' %';
+    const statusMult = parseFloat($('#crStatus').value) || 1;
+    const ball = ballById($('#crBall').value);
+    const ballMult = currentBallMult(ball);
+    const p = catchChance(rate, hp / 100, statusMult, ballMult);
+    const box = $('#crResult');
+    if (ballMult === Infinity) {
+      box.innerHTML = `<div class="cr-big ok">Garantierter Fang (Meisterball)</div>`;
+      return;
+    }
+    const pct = p * 100;
+    const a = Math.floor(((3 - 2 * (hp / 100)) * rate * ballMult / 3) * statusMult);
+    const forN = (p >= 1 || p <= 0) ? 0 : Math.ceil(Math.log(0.05) / Math.log(1 - p));
+    const cls = pct >= 100 ? 'ok' : (pct >= 30 ? 'mid' : 'low');
+    const ballStr = (ballMult % 1) ? ballMult.toFixed(2).replace(/0+$/, '').replace(/\.$/, '').replace('.', ',') : String(ballMult);
+    box.innerHTML =
+      `<div class="cr-big ${cls}">${pct >= 100 ? '≈ 100 % (sicher)' : pct.toFixed(1) + ' %'}<span class="cr-sub">pro Wurf</span></div>
+       <div class="cr-detail">Fangwert a = ${a >= 255 ? '≥ 255 (sicher)' : a} · Ball ×${ballStr} · Status ×${String(statusMult).replace('.', ',')}</div>
+       ${forN ? `<div class="cr-detail">≈ ${forN} ${forN === 1 ? 'Ball' : 'Bälle'} für 95 % Gesamt-Chance</div>` : ''}`;
+  }
+
+  function initCatch() {
+    const sel = $('#crBall');
+    sel.innerHTML = BALLS.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
+    renderCatchSituational(ballById(sel.value));
+    $('#crSpecies').addEventListener('input', () => {
+      const d = dexLookup($('#crSpecies').value);
+      const hint = $('#crRateHint');
+      if (d) { $('#crRate').value = d.catchRate; hint.textContent = `${d.name}: Fangrate ${d.catchRate}`; hint.className = 'cr-hint found'; }
+      else if ($('#crSpecies').value.trim()) { hint.textContent = 'Nicht gefunden – Fangrate manuell eintragen.'; hint.className = 'cr-hint'; }
+      else { hint.textContent = ''; }
+      renderCatchSituational(ballById(sel.value));
+      recalcCatch();
+    });
+    sel.addEventListener('change', () => { renderCatchSituational(ballById(sel.value)); recalcCatch(); });
+    ['crRate', 'crHp', 'crStatus'].forEach(idd => {
+      $('#' + idd).addEventListener('input', recalcCatch);
+      $('#' + idd).addEventListener('change', recalcCatch);
+    });
+    $('#crSituational').addEventListener('input', recalcCatch);
+    $('#crSituational').addEventListener('change', recalcCatch);
+    recalcCatch();
+  }
+
   // ===================== Init =====================
   load();
   buildFamilyIndex();
   renderAll();
+  initCatch();
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

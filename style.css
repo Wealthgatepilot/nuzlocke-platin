@@ -284,6 +284,27 @@ input { font-family: inherit; font-size: 16px; }
 .tm-type { background: var(--bg-elev); border-radius: 12px; padding: 3px 10px; font-size: .8rem; }
 .tm-neutral { color: var(--text-dim); font-size: .8rem; padding-top: 4px; }
 
+/* ---- Fangraten-Rechner ---- */
+.cr-form { display: flex; flex-direction: column; gap: 14px; }
+.cr-label { display: flex; flex-direction: column; gap: 6px; font-size: .82rem; color: var(--text-dim); }
+.cr-label input, .cr-label select {
+  background: var(--bg-card-2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px; color: var(--text); font-size: 1rem;
+}
+.cr-label input[type=range] { padding: 0; accent-color: var(--accent); height: 32px; }
+.cr-hint { font-size: .82rem; color: var(--text-dim); min-height: 1.1em; }
+.cr-hint.found { color: var(--green); }
+.cr-note { font-size: .82rem; color: var(--text-dim); background: var(--bg-card-2); border-radius: 8px; padding: 8px 10px; }
+.cr-check { display: flex; align-items: center; gap: 10px; font-size: .95rem; padding: 6px 0; }
+.cr-check input { width: 22px; height: 22px; accent-color: var(--accent); }
+.cr-result { margin-top: 18px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+.cr-big { font-size: 2rem; font-weight: 800; }
+.cr-big .cr-sub { display: block; font-size: .8rem; font-weight: 600; color: var(--text-dim); }
+.cr-big.ok  { color: var(--green); }
+.cr-big.mid { color: var(--yellow); }
+.cr-big.low { color: var(--accent-2); }
+.cr-detail { font-size: .84rem; color: var(--text-dim); margin-top: 8px; }
+
 /* ============ Prompt-Dialog ============ */
 .prompt-modal { border-radius: 18px; align-self: center; margin: auto 12px; max-width: 460px; }
 .prompt-modal h3 { margin-bottom: 14px; }
