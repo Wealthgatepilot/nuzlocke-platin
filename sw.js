@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nuzlocke-v4';
+const CACHE_NAME = 'nuzlocke-v5';
 const ASSETS = [
   './index.html',
   './style.css',

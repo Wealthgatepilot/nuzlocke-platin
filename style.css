@@ -238,6 +238,12 @@ input { font-family: inherit; font-size: 16px; }
 .dex-evo { background: var(--bg-card-2); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; }
 .dex-evo b { color: var(--text); }
 .dex-evo .evo-cond { color: var(--text-dim); font-size: .85rem; }
+.evo-link { color: var(--blue); cursor: pointer; }
+.evo-link:active { opacity: .6; }
+.fam-member[data-action] { cursor: pointer; }
+.fam-member[data-action]:active { opacity: .6; }
+.fam-member.current { outline: 2px solid var(--accent); }
+.dex-back { background: var(--bg-elev); color: var(--blue); border-radius: 8px; padding: 8px 12px; font-weight: 700; margin-bottom: 12px; }
 .move-table { width: 100%; border-collapse: collapse; }
 .move-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); font-size: .9rem; }
 .move-table td.lv { width: 64px; color: var(--accent-2); font-weight: 700; white-space: nowrap; }

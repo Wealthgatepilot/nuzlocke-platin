@@ -191,6 +191,7 @@
     }
     list.innerHTML = state.team.map(p => {
       const hasSp = !!(p.species && p.species.trim());
+      const evos = hasSp ? ((dexLookup(p.species) || {}).evolution || []) : [];
       const sub = [];
       if (p.origin) sub.push('gefangen: ' + esc(p.origin));
       if (p.nickname && p.nickname.trim()) sub.push('„' + esc(p.nickname) + '"');
@@ -199,6 +200,7 @@
           <div class="team-nick ${hasSp ? '' : 'empty'}">${hasSp ? esc(p.species) : '(keine Spezies)'}</div>
           ${sub.length ? `<div class="team-species">${sub.join(' · ')}</div>` : ''}
         </div>
+        ${evos.length ? `<button class="mini-btn evolve" data-action="team-evolve" data-id="${p.id}" title="Entwickeln">⬆️</button>` : ''}
         ${hasSp ? `<button class="mini-btn" data-action="dex" data-species="${esc(p.species)}">ℹ️</button>` : ''}
         <button class="mini-btn" data-action="team-edit" data-id="${p.id}">✎</button>
         <button class="mini-btn" data-action="team-del"  data-id="${p.id}">🗑</button>
@@ -309,23 +311,41 @@
   }
 
   // ===================== Pokédex-Modal =====================
+  let dexStack = [];   // Navigations-Historie (Spezies-Namen)
+  let dexCurrent = null;
+
   function openDex(species) {
-    const d = dexLookup(species);
+    const overlay = $('#modalOverlay');
+    if (overlay.hidden) dexStack = [];             // frisch geöffnet
+    else if (dexCurrent) dexStack.push(dexCurrent); // innerhalb navigiert -> merken
+    renderDexContent(species);
+    overlay.hidden = false;
+  }
+  function dexBack() {
+    const prev = dexStack.pop();
+    if (prev) renderDexContent(prev);
+  }
+
+  function renderDexContent(species) {
+    dexCurrent = species;
     const box = $('#modalContent');
+    const backBtn = dexStack.length
+      ? `<button class="dex-back" data-action="dex-back">‹ zurück zu ${esc(dexStack[dexStack.length - 1])}</button>`
+      : '';
+    const d = dexLookup(species);
     if (!d) {
-      box.innerHTML =
+      box.innerHTML = backBtn +
         `<div class="dex-head"><span class="dex-name">${esc(species)}</span></div>
          <div class="dex-notfound">Nicht in der Datenbank gefunden. Prüfe die Schreibweise (deutscher Name) oder schau online nach.</div>
          <a class="dex-link" target="_blank" rel="noopener"
             href="https://www.bulbapedia.bulbagarden.net/w/index.php?search=${encodeURIComponent(species)}">Auf Bulbapedia suchen ↗</a>`;
-      $('#modalOverlay').hidden = false;
       return;
     }
 
     const types = d.types.map(t => `<span class="type-tag">${esc(t)}</span>`).join('');
 
     const evo = (d.evolution && d.evolution.length)
-      ? d.evolution.map(e => `<div class="dex-evo"><b>→ ${esc(e.to)}</b> <span class="evo-cond">${esc(e.text || '')}</span></div>`).join('')
+      ? d.evolution.map(e => `<div class="dex-evo"><b class="evo-link" data-action="dex" data-species="${esc(e.to)}">→ ${esc(e.to)} ›</b> <span class="evo-cond">${esc(e.text || '')}</span></div>`).join('')
       : '<div class="dex-empty">Entwickelt sich nicht weiter.</div>';
 
     const lvl = (d.levelUpMoves && d.levelUpMoves.length)
@@ -348,8 +368,10 @@
       (anyCaught
         ? `<div class="dupe-banner">⚠️ Familie bereits gefangen → weitere Begegnungen sind Dupes (Reroll).</div>`
         : `<div class="ok-banner">✓ Familie noch frei – fangbar.</div>`) +
-      `<div class="fam-list">${fam.members.map(m =>
-        `<span class="fam-member ${caughtSet.has(m.key) ? 'caught' : ''}">${caughtSet.has(m.key) ? '✓ ' : ''}${esc(m.name)}</span>`).join('')}</div>`;
+      `<div class="fam-list">${fam.members.map(m => {
+        const cur = m.key === speciesKey(d.name);
+        return `<span class="fam-member ${caughtSet.has(m.key) ? 'caught' : ''} ${cur ? 'current' : ''}"${cur ? '' : ` data-action="dex" data-species="${esc(m.name)}"`}>${caughtSet.has(m.key) ? '✓ ' : ''}${esc(m.name)}</span>`;
+      }).join('')}</div>`;
 
     const mg = typeMatchups(d.types);
     let matchHtml = '';
@@ -366,7 +388,7 @@
       matchHtml = `<div class="dex-section-title">Typ-Effektivität (Verteidigung)</div>${rows.join('')}`;
     }
 
-    box.innerHTML =
+    box.innerHTML = backBtn +
       `<div class="dex-head"><span class="dex-name">${esc(d.name)}</span><span class="dex-no">#${String(d.id).padStart(3, '0')}</span></div>
        <div class="dex-types">${types}</div>
        ${d._incomplete ? '<div class="dex-notfound" style="margin-bottom:8px">Hinweis: Daten teilweise aus Diamant/Perl (kein vollständiger Platin-Datensatz).</div>' : ''}
@@ -376,9 +398,8 @@
        <div class="dex-section-title">Level-Attacken <span class="lv1-tag">(Lv 1 = von Beginn / nachlernbar)</span></div>${lvl}
        <div class="dex-section-title">TM / VM</div>${tm}
        <a class="dex-link" target="_blank" rel="noopener" href="${serebii}">Auf Serebii.net ansehen ↗</a>`;
-    $('#modalOverlay').hidden = false;
   }
-  const closeModal = () => { $('#modalOverlay').hidden = true; };
+  const closeModal = () => { $('#modalOverlay').hidden = true; dexStack = []; dexCurrent = null; };
 
   // ===================== Generischer Prompt-Dialog =====================
   let promptCb = null;
@@ -464,6 +485,13 @@
   const findTeam = id => state.team.find(p => p.id === id);
   const findEnc = id => state.encounters[ui.subtab].find(x => x.id === id);
   const findMarket = id => state.markets.find(m => m.id === id);
+  function findEncAnywhere(id) {
+    for (const cat of ['routes', 'static', 'fossils', 'honeyTrees']) {
+      const f = state.encounters[cat].find(x => x.id === id);
+      if (f) return f;
+    }
+    return null;
+  }
 
   // Auto-Team-Sync: eine Begegnung auf "Gefangen" (mit Spezies) erscheint automatisch im Team.
   // Verknüpfte Team-Einträge tragen fromEncounter; manuell angelegte nicht.
@@ -506,6 +534,7 @@
       case 'prompt-cancel': closePrompt(); break;
       case 'prompt-ok': submitPrompt(); break;
       case 'dex': openDex(el.dataset.species); break;
+      case 'dex-back': dexBack(); break;
 
       // ---- Checkpoints ----
       case 'cp-toggle': {
@@ -580,6 +609,27 @@
         const p = findTeam(id);
         if (confirm(`„${p.nickname || p.species || 'Eintrag'}" aus dem Team entfernen?`)) {
           state.team = state.team.filter(x => x.id !== id); save('team'); renderTeam();
+        }
+        break;
+      }
+      case 'team-evolve': {
+        const p = findTeam(id);
+        const evos = ((dexLookup(p.species) || {}).evolution) || [];
+        if (!evos.length) break;
+        const doEvolve = newSp => {
+          p.species = newSp;
+          if (p.fromEncounter) {
+            const enc = findEncAnywhere(p.fromEncounter);
+            if (enc) { enc.species = newSp; save('encounters'); }
+          }
+          save('team'); renderTeam(); renderEncounters();
+        };
+        if (evos.length === 1) {
+          doEvolve(evos[0].to);
+        } else {
+          openPrompt('Entwicklung wählen', [
+            { key: 'evo', label: p.species + ' entwickelt sich zu', type: 'select', options: evos.map(e => e.to), value: evos[0].to },
+          ], v => { if (v.evo) doEvolve(v.evo); });
         }
         break;
       }
