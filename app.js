@@ -49,12 +49,13 @@
 
   // ===================== Evolutions-Familien (Dupe-/Art-Klausel) =====================
   let FAMILY = null; // key -> { rep, members:[{key,name}] }
+  let PREVO = null;  // key -> { key, name }  (Vorentwicklung)
   function speciesKey(species) {
     const d = dexLookup(species);
     return d ? normKey(d.name) : normKey(species);
   }
   function buildFamilyIndex() {
-    FAMILY = {};
+    FAMILY = {}; PREVO = {};
     if (typeof POKEDEX === 'undefined') return;
     const adj = {}, nameOf = {};
     for (const key in POKEDEX) {
@@ -66,6 +67,7 @@
         adj[key].add(tk);
         (adj[tk] = adj[tk] || new Set()).add(key);
         if (!nameOf[tk]) nameOf[tk] = (POKEDEX[tk] && POKEDEX[tk].name) || e.to;
+        PREVO[tk] = { key: key, name: POKEDEX[key].name }; // key entwickelt sich zu tk
       });
     }
     const seen = new Set();
@@ -88,6 +90,10 @@
     if (!k) return null;
     if (FAMILY && FAMILY[k]) return FAMILY[k];
     return { rep: k, members: [{ key: k, name: species }] }; // Unbekannt -> Einzeltier
+  }
+  function prevoOf(species) {
+    const k = speciesKey(species);
+    return (PREVO && PREVO[k]) ? PREVO[k] : null;
   }
   function allEncounters() {
     const e = state.encounters;
@@ -192,6 +198,7 @@
     list.innerHTML = state.team.map(p => {
       const hasSp = !!(p.species && p.species.trim());
       const evos = hasSp ? ((dexLookup(p.species) || {}).evolution || []) : [];
+      const prevo = hasSp ? prevoOf(p.species) : null;
       const sub = [];
       if (p.origin) sub.push('gefangen: ' + esc(p.origin));
       if (p.nickname && p.nickname.trim()) sub.push('„' + esc(p.nickname) + '"');
@@ -201,6 +208,7 @@
           ${sub.length ? `<div class="team-species">${sub.join(' · ')}</div>` : ''}
         </div>
         ${evos.length ? `<button class="mini-btn evolve" data-action="team-evolve" data-id="${p.id}" title="Entwickeln">⬆️</button>` : ''}
+        ${prevo ? `<button class="mini-btn devolve" data-action="team-devolve" data-id="${p.id}" title="Zurück-Entwickeln">⬇️</button>` : ''}
         ${hasSp ? `<button class="mini-btn" data-action="dex" data-species="${esc(p.species)}">ℹ️</button>` : ''}
         <button class="mini-btn" data-action="team-edit" data-id="${p.id}">✎</button>
         <button class="mini-btn" data-action="team-del"  data-id="${p.id}">🗑</button>
@@ -631,6 +639,18 @@
             { key: 'evo', label: p.species + ' entwickelt sich zu', type: 'select', options: evos.map(e => e.to), value: evos[0].to },
           ], v => { if (v.evo) doEvolve(v.evo); });
         }
+        break;
+      }
+      case 'team-devolve': {
+        const p = findTeam(id);
+        const pre = prevoOf(p.species);
+        if (!pre) break;
+        p.species = pre.name;
+        if (p.fromEncounter) {
+          const enc = findEncAnywhere(p.fromEncounter);
+          if (enc) { enc.species = pre.name; save('encounters'); }
+        }
+        save('team'); renderTeam(); renderEncounters();
         break;
       }
 
