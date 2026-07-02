@@ -87,6 +87,36 @@ function Get-TypeDe($name) {
   return $de
 }
 
+function Gen-Num($genName) {
+  switch ($genName) {
+    'generation-i'    { return 1 }
+    'generation-ii'   { return 2 }
+    'generation-iii'  { return 3 }
+    'generation-iv'   { return 4 }
+    'generation-v'    { return 5 }
+    'generation-vi'   { return 6 }
+    'generation-vii'  { return 7 }
+    'generation-viii' { return 8 }
+    'generation-ix'   { return 9 }
+    default { return 99 }
+  }
+}
+
+# Gen-4-Typen ueber past_types (Fee-Umtypungen ab Gen 6 rueckgaengig machen)
+function Get-Gen4Types($p) {
+  $chosen = $null
+  if ($p.past_types) {
+    $bestNum = 999; $best = $null
+    foreach ($pt in $p.past_types) {
+      $gn = Gen-Num $pt.generation.name
+      if ($gn -ge 4 -and $gn -lt $bestNum) { $bestNum = $gn; $best = $pt }
+    }
+    if ($best) { $chosen = $best.types }
+  }
+  if (-not $chosen) { $chosen = $p.types }
+  return @($chosen | Sort-Object { $_.slot } | ForEach-Object { $_.type.name })
+}
+
 function Get-ItemDe($name) {
   if (-not $name) { return $null }
   if ($script:itemDe.ContainsKey($name)) { return $script:itemDe[$name] }
@@ -221,10 +251,10 @@ for ($id = $StartId; $id -le $EndId; $id++) {
     $nameEn = $p.name
     $incomplete = $false
 
-    # --- Typen (de) ---
+    # --- Typen (de, Gen-4-Stand) ---
     $typesDe = @()
-    foreach ($t in ($p.types | Sort-Object { $_.slot })) {
-      $typesDe += (Get-TypeDe $t.type.name)
+    foreach ($tn in (Get-Gen4Types $p)) {
+      $typesDe += (Get-TypeDe $tn)
     }
 
     # --- Evolution ---
@@ -330,6 +360,31 @@ for ($id = $StartId; $id -le $EndId; $id++) {
   }
 }
 
+# --- Gen-4-Typentabelle bauen (17 Typen, ohne Fee; Stahl resistiert Geist & Unlicht) ---
+$STD_TYPES = @('normal','fire','water','grass','electric','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel')
+$chartRaw = @{}
+foreach ($a in $STD_TYPES) {
+  $t = Get-Api "$base/type/$a"
+  $rel = @{}
+  foreach ($x in $t.damage_relations.double_damage_to) { if ($STD_TYPES -contains $x.name) { $rel[$x.name] = '2' } }
+  foreach ($x in $t.damage_relations.half_damage_to)   { if ($STD_TYPES -contains $x.name) { $rel[$x.name] = '0.5' } }
+  foreach ($x in $t.damage_relations.no_damage_to)     { if ($STD_TYPES -contains $x.name) { $rel[$x.name] = '0' } }
+  $chartRaw[$a] = $rel
+}
+# Gen-4-Korrektur (Steel-Nerf kam erst Gen 6):
+$chartRaw['ghost']['steel'] = '0.5'
+$chartRaw['dark']['steel']  = '0.5'
+
+$typeLines = @()
+foreach ($a in $STD_TYPES) {
+  $pairs = @()
+  foreach ($d in $chartRaw[$a].Keys) {
+    $pairs += ('"' + (Esc (Get-TypeDe $d)) + '": ' + $chartRaw[$a][$d])
+  }
+  $typeLines += ('  "' + (Esc (Get-TypeDe $a)) + '": { ' + ($pairs -join ', ') + ' }')
+}
+$typesDeList = (($STD_TYPES | ForEach-Object { '"' + (Esc (Get-TypeDe $_)) + '"' }) -join ', ')
+
 # --- Datei schreiben ---
 $out = New-Object System.Text.StringBuilder
 [void]$out.Append("// AUTO-GENERIERT aus der PokeAPI (version-group: platinum). Nicht von Hand editieren.`n")
@@ -341,7 +396,12 @@ $out = New-Object System.Text.StringBuilder
 [void]$out.Append("const POKEDEX_ALIASES = {`n")
 [void]$out.Append(($aliases -join ",`n"))
 [void]$out.Append("`n};`n`n")
-[void]$out.Append("if (typeof module !== 'undefined') { module.exports = { POKEDEX, POKEDEX_ALIASES }; }`n")
+[void]$out.Append("// Gen-4-Typentabelle: TYPECHART[Angriffstyp][Verteidigungstyp] = Multiplikator (nur != 1)`n")
+[void]$out.Append("const TYPECHART = {`n")
+[void]$out.Append(($typeLines -join ",`n"))
+[void]$out.Append("`n};`n`n")
+[void]$out.Append("const TYPES_DE = [" + $typesDeList + "];`n`n")
+[void]$out.Append("if (typeof module !== 'undefined') { module.exports = { POKEDEX, POKEDEX_ALIASES, TYPECHART, TYPES_DE }; }`n")
 
 [System.IO.File]::WriteAllText($OutFile, $out.ToString(), (New-Object System.Text.UTF8Encoding($false)))
 

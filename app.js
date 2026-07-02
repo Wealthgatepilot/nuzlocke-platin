@@ -110,6 +110,19 @@
     return m;
   }
 
+  // ===================== Defensive Typ-Effektivität (Gen 4) =====================
+  // Gibt { multiplikator: [Angriffstyp, ...] } für die übergebenen (Verteidigungs-)Typen zurück.
+  function typeMatchups(types) {
+    if (typeof TYPECHART === 'undefined' || typeof TYPES_DE === 'undefined' || !types || !types.length) return null;
+    const groups = {};
+    TYPES_DE.forEach(a => {
+      let m = 1;
+      types.forEach(t => { const row = TYPECHART[a]; if (row && row[t] !== undefined) m *= row[t]; });
+      (groups[m] = groups[m] || []).push(a);
+    });
+    return groups;
+  }
+
   // ===================== UI-Status =====================
   const ui = { tab: 'progress', subtab: 'routes', openMarkets: new Set() };
 
@@ -338,10 +351,26 @@
       `<div class="fam-list">${fam.members.map(m =>
         `<span class="fam-member ${caughtSet.has(m.key) ? 'caught' : ''}">${caughtSet.has(m.key) ? '✓ ' : ''}${esc(m.name)}</span>`).join('')}</div>`;
 
+    const mg = typeMatchups(d.types);
+    let matchHtml = '';
+    if (mg) {
+      const order = [4, 2, 0.5, 0.25, 0];
+      const label = { 4: '4× – sehr anfällig', 2: '2× – schwach', 0.5: '½× – resistent', 0.25: '¼× – stark resistent', 0: '0× – immun' };
+      const cls = { 4: 'weak4', 2: 'weak2', 0.5: 'res2', 0.25: 'res4', 0: 'immune' };
+      const rows = order.filter(x => mg[x] && mg[x].length).map(x =>
+        `<div class="tm-row"><span class="tm-mult ${cls[x]}">${label[x]}</span>` +
+        `<span class="tm-types">${mg[x].map(t => `<span class="tm-type">${esc(t)}</span>`).join('')}</span></div>`);
+      if (mg[1] && mg[1].length) {
+        rows.push(`<div class="tm-row"><span class="tm-mult neutral">1× – normal</span><span class="tm-neutral">${mg[1].map(t => esc(t)).join(', ')}</span></div>`);
+      }
+      matchHtml = `<div class="dex-section-title">Typ-Effektivität (Verteidigung)</div>${rows.join('')}`;
+    }
+
     box.innerHTML =
       `<div class="dex-head"><span class="dex-name">${esc(d.name)}</span><span class="dex-no">#${String(d.id).padStart(3, '0')}</span></div>
        <div class="dex-types">${types}</div>
        ${d._incomplete ? '<div class="dex-notfound" style="margin-bottom:8px">Hinweis: Daten teilweise aus Diamant/Perl (kein vollständiger Platin-Datensatz).</div>' : ''}
+       ${matchHtml}
        ${famHtml}
        <div class="dex-section-title">Entwicklung</div>${evo}
        <div class="dex-section-title">Level-Attacken <span class="lv1-tag">(Lv 1 = von Beginn / nachlernbar)</span></div>${lvl}

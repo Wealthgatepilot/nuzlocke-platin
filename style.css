@@ -265,6 +265,19 @@ input { font-family: inherit; font-size: 16px; }
 .fam-member { background: var(--bg-elev); border-radius: 20px; padding: 5px 12px; font-size: .85rem; color: var(--text-dim); }
 .fam-member.caught { background: var(--green-dim); color: #d6ffe6; font-weight: 600; }
 
+/* ---- Typ-Effektivität ---- */
+.tm-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; }
+.tm-mult { flex: 0 0 auto; min-width: 132px; font-weight: 700; font-size: .78rem; padding: 4px 9px; border-radius: 7px; white-space: nowrap; }
+.tm-mult.weak4 { background: #5a1f1a; color: #ffb3aa; }
+.tm-mult.weak2 { background: #3f231a; color: #ffb59f; }
+.tm-mult.res2  { background: #123521; color: #9be8b6; }
+.tm-mult.res4  { background: #0d3d26; color: #c6ffd9; }
+.tm-mult.immune { background: #1a2740; color: #9fc0ff; }
+.tm-mult.neutral { background: var(--bg-elev); color: var(--text-dim); }
+.tm-types { display: flex; flex-wrap: wrap; gap: 4px; }
+.tm-type { background: var(--bg-elev); border-radius: 12px; padding: 3px 10px; font-size: .8rem; }
+.tm-neutral { color: var(--text-dim); font-size: .8rem; padding-top: 4px; }
+
 /* ============ Prompt-Dialog ============ */
 .prompt-modal { border-radius: 18px; align-self: center; margin: auto 12px; max-width: 460px; }
 .prompt-modal h3 { margin-bottom: 14px; }
