@@ -24,6 +24,10 @@ $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $base = 'https://pokeapi.co/api/v2'
 
+# Gen-4-Fangraten-Overrides: in ORAS (Gen 6) auf 3 geaendert; PokeAPI liefert nur den neuen Wert.
+# Betroffene National-Dex 1..493: Kyogre 382, Groudon 383 (je 5), Dialga 483, Palkia 484 (je 30).
+$GEN4_CATCH = @{ 382 = 5; 383 = 5; 483 = 30; 484 = 30 }
+
 if (-not (Test-Path $CacheDir)) { New-Item -ItemType Directory -Path $CacheDir -Force | Out-Null }
 if (-not $OutFile) { $OutFile = Join-Path $PSScriptRoot '..\pokedex.js' }
 
@@ -322,7 +326,7 @@ for ($id = $StartId; $id -le $EndId; $id++) {
     [void]$sb.Append('name: "').Append((Esc $nameDe)).Append('", ')
     [void]$sb.Append('nameEn: "').Append((Esc $nameEn)).Append('", ')
     [void]$sb.Append('types: [').Append((($typesDe | ForEach-Object { '"' + (Esc $_) + '"' }) -join ', ')).Append('], ')
-    $capture = if ($null -ne $sp.capture_rate) { [int]$sp.capture_rate } else { 0 }
+    $capture = if ($GEN4_CATCH.ContainsKey($id)) { $GEN4_CATCH[$id] } elseif ($null -ne $sp.capture_rate) { [int]$sp.capture_rate } else { 0 }
     [void]$sb.Append('catchRate: ').Append($capture).Append(',')
     if ($incomplete) { [void]$sb.Append(' _incomplete: true,') }
     [void]$sb.Append("`n")
