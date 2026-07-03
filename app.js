@@ -841,9 +841,11 @@
       const checked = ball.autoCaught && caughtSpeciesKeySet().has(speciesKey($('#crSpecies').value)) ? 'checked' : '';
       box.innerHTML = `<label class="cr-check"><input type="checkbox" ${checked}> ${esc(ball.toggleLabel)} (×${ball.mult})</label>`;
     } else if (ball.cond === 'level') {
-      box.innerHTML = `<label class="cr-label">Level des wilden Pokémon <input type="number" min="1" max="100" value="20"></label>`;
+      box.innerHTML = `<label class="cr-label">Level des wilden Pokémon <input type="number" min="1" max="100" value="20"></label>
+        <div class="cr-note">Nestball: ×(40 − Level) ⁄ 10, mindestens ×1.</div>`;
     } else if (ball.cond === 'turns') {
-      box.innerHTML = `<label class="cr-label">Runden im Kampf <input type="number" min="1" max="99" value="1"></label>`;
+      box.innerHTML = `<label class="cr-label">Runden im Kampf <input type="number" min="1" max="99" value="1"></label>
+        <div class="cr-note">Timerball: ×(Runden + 10) ⁄ 10 – steigt pro Runde, max ×4 ab Runde 30.</div>`;
     }
   }
 
