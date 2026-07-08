@@ -204,7 +204,7 @@
       return;
     }
     const q = (ui.teamSearch || '').toLowerCase().trim();
-    const team = q ? state.team.filter(p => ((p.species || '') + ' ' + (p.nickname || '')).toLowerCase().includes(q)) : state.team;
+    const team = q ? state.team.filter(p => (p.species || '').toLowerCase().includes(q)) : state.team;
     if (!team.length) {
       list.innerHTML = `<li class="card" style="color:var(--text-dim);text-align:center">Keine Treffer für „${esc(ui.teamSearch)}".</li>`;
       return;

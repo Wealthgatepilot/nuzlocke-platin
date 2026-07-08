@@ -126,7 +126,7 @@ const DEFAULT_DATA = {
     gifts: [
       { id: 'g01', name: 'Starter (Labor)',             note: 'Prof. Eibisch, Lv 5',    species: '', status: 'open' },
       { id: 'g02', name: 'Togepi-Ei (Cynthia)',         note: 'nach Jupiter, Ewigenau', species: '', status: 'open' },
-      { id: 'g03', name: 'Evoli (Bebe, Herzhofen)',     note: 'Lv 20',                  species: '', status: 'open' },
+      { id: 'g03', name: 'Evoli (Lana, Herzhofen)',     note: 'Lv 20',                  species: '', status: 'open' },
       { id: 'g04', name: 'Porygon (Schleiede)',         note: 'Spielhalle, Lv 25',      species: '', status: 'open' },
       { id: 'g05', name: 'Riolu-Ei (Rico, Eiseninsel)', note: 'nach Eiseninsel',        species: '', status: 'open' },
     ],
