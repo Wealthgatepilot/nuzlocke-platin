@@ -79,8 +79,10 @@
         const n = stack.pop(); comp.push(n);
         (adj[n] || new Set()).forEach(m => { if (!seen.has(m)) { seen.add(m); stack.push(m); } });
       }
+      // Entwicklungsstufe = Anzahl Vorentwicklungen; nach Stufe sortieren, dann Dex-Nr.
+      const dep = k => { let d = 0, c = k, g = 0; while (PREVO[c] && g < 12) { c = PREVO[c].key; d++; g++; } return d; };
       const members = comp.map(k => ({ key: k, name: nameOf[k] || k }))
-        .sort((a, b) => ((POKEDEX[a.key] ? POKEDEX[a.key].id : 999) - (POKEDEX[b.key] ? POKEDEX[b.key].id : 999)));
+        .sort((a, b) => (dep(a.key) - dep(b.key)) || ((POKEDEX[a.key] ? POKEDEX[a.key].id : 999) - (POKEDEX[b.key] ? POKEDEX[b.key].id : 999)));
       const rep = comp.slice().sort()[0];
       comp.forEach(k => { FAMILY[k] = { rep, members }; });
     }
@@ -97,23 +99,28 @@
   }
   function allEncounters() {
     const e = state.encounters;
-    return [...e.routes, ...e.static, ...e.fossils, ...e.honeyTrees];
+    return [...e.routes, ...e.static, ...e.fossils, ...e.honeyTrees, ...(e.gifts || [])];
   }
   function caughtSpeciesKeySet() {
     const s = new Set();
     allEncounters().forEach(x => { if (x.status === 'caught' && x.species && x.species.trim()) s.add(speciesKey(x.species)); });
     return s;
   }
-  // rep der Familie -> id des ERSTEN gefangenen Mitglieds (in Listenreihenfolge)
-  function familyFirstCatch() {
-    const m = {};
-    allEncounters().forEach(x => {
-      if (x.status === 'caught' && x.species && x.species.trim()) {
-        const fam = familyOf(x.species);
-        if (fam && m[fam.rep] === undefined) m[fam.rep] = x.id;
-      }
+  // Dupe-/Art-Klausel gilt NUR für Routen. Eine Routen-Begegnung, die aufgelöst ist
+  // (gefangen ODER gescheitert), verbraucht die ganze Familie. Statisch/Honig/Fossil/
+  // Geschenke sind komplett ausgenommen (weder Dupe noch verbrauchend).
+  const ROUTE_CLAIM = x => (x.status === 'caught' || x.status === 'failed') && x.species && x.species.trim();
+  function routeClaims() {
+    const m = {}; // fam.rep -> id der ersten claimenden Routen-Begegnung
+    state.encounters.routes.forEach(x => {
+      if (ROUTE_CLAIM(x)) { const fam = familyOf(x.species); if (fam && m[fam.rep] === undefined) m[fam.rep] = x.id; }
     });
     return m;
+  }
+  function routeClaimedSpeciesKeys() {
+    const s = new Set();
+    state.encounters.routes.forEach(x => { if (ROUTE_CLAIM(x)) s.add(speciesKey(x.species)); });
+    return s;
   }
 
   // ===================== Defensive Typ-Effektivität (Gen 4) =====================
@@ -130,13 +137,14 @@
   }
 
   // ===================== UI-Status =====================
-  const ui = { tab: 'progress', subtab: 'routes', openMarkets: new Set() };
+  const ui = { tab: 'progress', subtab: 'routes', openMarkets: new Set(), teamSearch: '' };
 
   const ENC_CATS = {
     routes:     { label: 'Routen',     hasNote: false, honey: false },
     static:     { label: 'Statisch',   hasNote: true,  honey: false },
     fossils:    { label: 'Fossilien',  hasNote: true,  honey: false },
     honeyTrees: { label: 'Honigbäume', hasNote: false, honey: true  },
+    gifts:      { label: 'Geschenke',  hasNote: true,  honey: false },
   };
 
   const STATUS = {
@@ -195,7 +203,13 @@
       list.innerHTML = '<li class="card" style="color:var(--text-dim);text-align:center">Noch keine Pokémon. Setze eine Begegnung auf „Gefangen" oder tippe auf „+ Pokémon hinzufügen".</li>';
       return;
     }
-    list.innerHTML = state.team.map(p => {
+    const q = (ui.teamSearch || '').toLowerCase().trim();
+    const team = q ? state.team.filter(p => ((p.species || '') + ' ' + (p.nickname || '')).toLowerCase().includes(q)) : state.team;
+    if (!team.length) {
+      list.innerHTML = `<li class="card" style="color:var(--text-dim);text-align:center">Keine Treffer für „${esc(ui.teamSearch)}".</li>`;
+      return;
+    }
+    list.innerHTML = team.map(p => {
       const hasSp = !!(p.species && p.species.trim());
       const evos = hasSp ? ((dexLookup(p.species) || {}).evolution || []) : [];
       const prevo = hasSp ? prevoOf(p.species) : null;
@@ -255,17 +269,18 @@
       list.innerHTML = `<li class="card" style="color:var(--text-dim);text-align:center">Keine Einträge. Tippe unten auf „+ Eintrag hinzufügen".</li>`;
       return;
     }
-    const firstCatch = familyFirstCatch();
+    const isRoutes = ui.subtab === 'routes';
+    const claims = isRoutes ? routeClaims() : null;
     const idName = {};
-    allEncounters().forEach(x => { idName[x.id] = x.name; });
+    if (isRoutes) state.encounters.routes.forEach(x => { idName[x.id] = x.name; });
     list.innerHTML = items.map(it => {
       const st = STATUS[it.status] || STATUS.open;
       const hasSp = !!(it.species && it.species.trim());
       let dupeHtml = '';
-      if (hasSp) {
+      if (isRoutes && hasSp) {
         const fam = familyOf(it.species);
-        if (fam && firstCatch[fam.rep] !== undefined && firstCatch[fam.rep] !== it.id) {
-          dupeHtml = `<div class="dupe-badge">⚠️ Dupe – Familie schon gefangen: ${esc(idName[firstCatch[fam.rep]] || '?')}</div>`;
+        if (fam && claims[fam.rep] !== undefined && claims[fam.rep] !== it.id) {
+          dupeHtml = `<div class="dupe-badge">⚠️ Dupe – Familie schon auf Route dran: ${esc(idName[claims[fam.rep]] || '?')}</div>`;
         }
       }
       return `<li class="card enc-card">
@@ -369,16 +384,16 @@
     const serebii = `https://www.serebii.net/pokedex-dp/${String(d.id).padStart(3, '0')}.shtml`;
 
     const fam = familyOf(d.name);
-    const caughtSet = caughtSpeciesKeySet();
-    const anyCaught = fam.members.some(m => caughtSet.has(m.key));
+    const claimedSet = routeClaimedSpeciesKeys();
+    const anyClaimed = fam.members.some(m => claimedSet.has(m.key));
     const famHtml =
-      `<div class="dex-section-title">Evo-Familie · Dupe-Klausel</div>` +
-      (anyCaught
-        ? `<div class="dupe-banner">⚠️ Familie bereits gefangen → weitere Begegnungen sind Dupes (Reroll).</div>`
-        : `<div class="ok-banner">✓ Familie noch frei – fangbar.</div>`) +
+      `<div class="dex-section-title">Evo-Familie · Dupe-Klausel (nur Routen)</div>` +
+      (anyClaimed
+        ? `<div class="dupe-banner">⚠️ Diese Familie war schon auf einer Route dran → Routen-Dupe (Reroll). Statisch/Honig/Fossil/Geschenk gehen weiter.</div>`
+        : `<div class="ok-banner">✓ Familie noch frei – auf einer Route fangbar.</div>`) +
       `<div class="fam-list">${fam.members.map(m => {
         const cur = m.key === speciesKey(d.name);
-        return `<span class="fam-member ${caughtSet.has(m.key) ? 'caught' : ''} ${cur ? 'current' : ''}"${cur ? '' : ` data-action="dex" data-species="${esc(m.name)}"`}>${caughtSet.has(m.key) ? '✓ ' : ''}${esc(m.name)}</span>`;
+        return `<span class="fam-member ${claimedSet.has(m.key) ? 'caught' : ''} ${cur ? 'current' : ''}"${cur ? '' : ` data-action="dex" data-species="${esc(m.name)}"`}>${claimedSet.has(m.key) ? '✓ ' : ''}${esc(m.name)}</span>`;
       }).join('')}</div>`;
 
     const mg = typeMatchups(d.types);
@@ -444,6 +459,15 @@
       b.classList.toggle('active', b.dataset.nav === tab));
   }
 
+  // Springt zur ersten noch offenen Begegnung der aktuellen Kategorie
+  function scrollToFirstOpen() {
+    const cards = document.querySelectorAll('#encounterList .enc-card');
+    for (const c of cards) {
+      const pill = c.querySelector('.status-pill');
+      if (pill && pill.classList.contains('open')) { c.scrollIntoView({ block: 'center' }); return; }
+    }
+  }
+
   function renderAll() {
     renderCap();
     renderProgress();
@@ -475,7 +499,7 @@
       if (!present.length) { alert('Import fehlgeschlagen: keine bekannten Daten in der Datei.'); return; }
       if (!confirm('Aktuelle Daten mit diesem Backup überschreiben? Das kann nicht rückgängig gemacht werden.')) return;
       for (const k in KEYS) { if (d[KEYS[k]] != null) state[k] = d[KEYS[k]]; }
-      saveAll(); renderAll();
+      ensureStructure(); saveAll(); renderAll();
       alert('Import erfolgreich.');
     };
     r.readAsText(file);
@@ -494,7 +518,7 @@
   const findEnc = id => state.encounters[ui.subtab].find(x => x.id === id);
   const findMarket = id => state.markets.find(m => m.id === id);
   function findEncAnywhere(id) {
-    for (const cat of ['routes', 'static', 'fossils', 'honeyTrees']) {
+    for (const cat of ['routes', 'static', 'fossils', 'honeyTrees', 'gifts']) {
       const f = state.encounters[cat].find(x => x.id === id);
       if (f) return f;
     }
@@ -522,10 +546,10 @@
     if (e.target.id === 'promptOverlay') { closePrompt(); return; }
 
     const navBtn = e.target.closest('[data-nav]');
-    if (navBtn) { switchTab(navBtn.dataset.nav); return; }
+    if (navBtn) { switchTab(navBtn.dataset.nav); if (navBtn.dataset.nav === 'encounters') setTimeout(scrollToFirstOpen, 60); return; }
 
     const subBtn = e.target.closest('[data-subtab]');
-    if (subBtn) { ui.subtab = subBtn.dataset.subtab; renderEncounters(); return; }
+    if (subBtn) { ui.subtab = subBtn.dataset.subtab; renderEncounters(); setTimeout(scrollToFirstOpen, 60); return; }
 
     const el = e.target.closest('[data-action]');
     if (!el) return;
@@ -896,11 +920,21 @@
     recalcCatch();
   }
 
+  // Ältere Speicherstände ohne neue Kategorien nachrüsten
+  function ensureStructure() {
+    if (state.encounters && !state.encounters.gifts) {
+      state.encounters.gifts = clone(DEFAULT_DATA.encounters.gifts);
+      save('encounters');
+    }
+  }
+
   // ===================== Init =====================
   load();
+  ensureStructure();
   buildFamilyIndex();
   renderAll();
   initCatch();
+  $('#teamSearch').addEventListener('input', e => { ui.teamSearch = e.target.value; renderTeam(); });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
