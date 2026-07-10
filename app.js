@@ -939,11 +939,30 @@
     recalcCatch();
   }
 
-  // Ältere Speicherstände ohne neue Kategorien nachrüsten
+  // Ältere Speicherstände ohne neue Kategorien / mit alten Fossil-Namen nachrüsten
+  const OLD_FOSSIL_NAMES = {
+    'Schädelstein → Koknodon': 'Kopffossil → Koknodon',
+    'Panzerstein → Schilditas': 'Panzerfossil → Schilditas',
+    'Spiralstein → Amonitas': 'Helixfossil → Amonitas',
+    'Kuppelstein → Kabuto': 'Domfossil → Kabuto',
+    'Uralt-Bernstein → Aerodactyl': 'Altbernstein → Aerodactyl',
+    'Klauenstein → Liliep': 'Klauenfossil → Anorith',
+    'Wurzelstein → Armaldo': 'Wurzelfossil → Liliep',
+    'Klauenstein → Anorith': 'Klauenfossil → Anorith',
+    'Wurzelstein → Liliep': 'Wurzelfossil → Liliep',
+  };
   function ensureStructure() {
-    if (state.encounters && !state.encounters.gifts) {
+    if (!state.encounters) return;
+    if (!state.encounters.gifts) {
       state.encounters.gifts = clone(DEFAULT_DATA.encounters.gifts);
       save('encounters');
+    }
+    if (state.encounters.fossils) {
+      let changed = false;
+      state.encounters.fossils.forEach(f => {
+        if (OLD_FOSSIL_NAMES[f.name]) { f.name = OLD_FOSSIL_NAMES[f.name]; changed = true; }
+      });
+      if (changed) save('encounters');
     }
   }
 

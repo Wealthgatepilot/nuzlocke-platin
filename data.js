@@ -112,13 +112,13 @@ const DEFAULT_DATA = {
     ],
 
     fossils: [
-      { id: 'f01', name: 'Schädelstein → Koknodon',    note: 'Untergrund (ungerade Trainer-ID)', species: '', status: 'open' },
-      { id: 'f02', name: 'Panzerstein → Schilditas',   note: 'Untergrund (gerade Trainer-ID)',   species: '', status: 'open' },
-      { id: 'f03', name: 'Spiralstein → Amonitas',     note: 'Untergrund (nach Nationaldex)',    species: '', status: 'open' },
-      { id: 'f04', name: 'Kuppelstein → Kabuto',       note: 'Untergrund (nach Nationaldex)',    species: '', status: 'open' },
-      { id: 'f05', name: 'Uralt-Bernstein → Aerodactyl', note: 'Untergrund (nach Nationaldex)', species: '', status: 'open' },
-      { id: 'f06', name: 'Klauenstein → Liliep',       note: 'Untergrund (nach Nationaldex)',    species: '', status: 'open' },
-      { id: 'f07', name: 'Wurzelstein → Armaldo',      note: 'Untergrund (nach Nationaldex)',    species: '', status: 'open' },
+      { id: 'f01', name: 'Kopffossil → Koknodon',    note: 'Untergrund (ungerade Trainer-ID)', species: '', status: 'open' },
+      { id: 'f02', name: 'Panzerfossil → Schilditas', note: 'Untergrund (gerade Trainer-ID)',   species: '', status: 'open' },
+      { id: 'f03', name: 'Helixfossil → Amonitas',   note: 'Untergrund (nach Nationaldex)',    species: '', status: 'open' },
+      { id: 'f04', name: 'Domfossil → Kabuto',       note: 'Untergrund (nach Nationaldex)',    species: '', status: 'open' },
+      { id: 'f05', name: 'Altbernstein → Aerodactyl', note: 'Untergrund (nach Nationaldex)',   species: '', status: 'open' },
+      { id: 'f06', name: 'Klauenfossil → Anorith',   note: 'Untergrund (nach Nationaldex)',    species: '', status: 'open' },
+      { id: 'f07', name: 'Wurzelfossil → Liliep',    note: 'Untergrund (nach Nationaldex)',    species: '', status: 'open' },
     ],
 
     honeyTrees: [],
