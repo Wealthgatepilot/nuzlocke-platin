@@ -417,10 +417,22 @@
       matchHtml = `<div class="dex-section-title">Typ-Effektivität (Verteidigung)</div>${rows.join('')}`;
     }
 
+    const bs = d.baseStats;
+    let statHtml = '';
+    if (bs) {
+      const srows = [['KP', 'hp'], ['Angriff', 'atk'], ['Vert.', 'def'], ['Sp.-Ang.', 'spa'], ['Sp.-Vert.', 'spd'], ['Init.', 'spe']];
+      statHtml = `<div class="dex-section-title">Basiswerte · BST ${d.bst}</div><table class="stat-table">${srows.map(r => {
+        const v = bs[r[1]]; const pct = Math.max(3, Math.min(100, Math.round(v / 200 * 100)));
+        const cls = v >= 100 ? 's-hi' : (v >= 70 ? 's-mid' : 's-lo');
+        return `<tr><td class="st-l">${r[0]}</td><td class="st-v">${v}</td><td class="st-bar"><span class="${cls}" style="width:${pct}%"></span></td></tr>`;
+      }).join('')}</table>`;
+    }
+
     box.innerHTML = backBtn +
       `<div class="dex-head"><span class="dex-name">${esc(d.name)}</span><span class="dex-no">#${String(d.id).padStart(3, '0')}</span></div>
        <div class="dex-types">${types}</div>
        ${d._incomplete ? '<div class="dex-notfound" style="margin-bottom:8px">Hinweis: Daten teilweise aus Diamant/Perl (kein vollständiger Platin-Datensatz).</div>' : ''}
+       ${statHtml}
        ${matchHtml}
        ${famHtml}
        <div class="dex-section-title">Entwicklung</div>${evo}
@@ -573,6 +585,7 @@
       case 'prompt-ok': submitPrompt(); break;
       case 'dex': openDex(el.dataset.species); break;
       case 'dex-back': dexBack(); break;
+      case 'natures': openNatures(); break;
 
       // ---- Checkpoints ----
       case 'cp-toggle': {
@@ -932,6 +945,52 @@
       state.encounters.gifts = clone(DEFAULT_DATA.encounters.gifts);
       save('encounters');
     }
+  }
+
+  // ===================== Wesen (Naturen) =====================
+  // up/down = angehobener/gesenkter Statuswert (+/-10 %); null = neutral. KP nie betroffen.
+  const NATURES = [
+    { name: 'Robust',  up: null,  down: null  },
+    { name: 'Solo',    up: 'atk', down: 'def' },
+    { name: 'Mutig',   up: 'atk', down: 'spe' },
+    { name: 'Hart',    up: 'atk', down: 'spa' },
+    { name: 'Frech',   up: 'atk', down: 'spd' },
+    { name: 'Kühn',    up: 'def', down: 'atk' },
+    { name: 'Sanft',   up: null,  down: null  },
+    { name: 'Pfiffig', up: 'def', down: 'spa' },
+    { name: 'Lasch',   up: 'def', down: 'spd' },
+    { name: 'Locker',  up: 'def', down: 'spe' },
+    { name: 'Mäßig',   up: 'spa', down: 'atk' },
+    { name: 'Mild',    up: 'spa', down: 'def' },
+    { name: 'Zaghaft', up: null,  down: null  },
+    { name: 'Hitzig',  up: 'spa', down: 'spd' },
+    { name: 'Ruhig',   up: 'spa', down: 'spe' },
+    { name: 'Still',   up: 'spd', down: 'atk' },
+    { name: 'Zart',    up: 'spd', down: 'def' },
+    { name: 'Sacht',   up: 'spd', down: 'spa' },
+    { name: 'Kauzig',  up: null,  down: null  },
+    { name: 'Forsch',  up: 'spd', down: 'spe' },
+    { name: 'Scheu',   up: 'spe', down: 'atk' },
+    { name: 'Hastig',  up: 'spe', down: 'def' },
+    { name: 'Froh',    up: 'spe', down: 'spa' },
+    { name: 'Naiv',    up: 'spe', down: 'spd' },
+    { name: 'Ernst',   up: null,  down: null  },
+  ];
+
+  function openNatures() {
+    const lab = { atk: 'Angriff', def: 'Verteidigung', spa: 'Sp.-Angriff', spd: 'Sp.-Vert.', spe: 'Initiative' };
+    const rows = NATURES.slice().sort((a, b) => a.name.localeCompare(b.name)).map(n => {
+      const eff = n.up
+        ? `<span class="nat-up">▲ ${lab[n.up]}</span> <span class="nat-down">▼ ${lab[n.down]}</span>`
+        : `<span class="nat-neutral">– kein Effekt –</span>`;
+      return `<tr><td class="nat-name">${esc(n.name)}</td><td>${eff}</td></tr>`;
+    }).join('');
+    dexStack = []; dexCurrent = null;
+    $('#modalContent').innerHTML =
+      `<div class="dex-head"><span class="dex-name">Wesen (Naturen)</span></div>
+       <p class="hint">▲ = +10 % · ▼ = −10 % auf den Statuswert. KP wird nie verändert.</p>
+       <table class="nat-table">${rows}</table>`;
+    $('#modalOverlay').hidden = false;
   }
 
   // ===================== Init =====================

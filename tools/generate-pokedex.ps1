@@ -28,6 +28,19 @@ $base = 'https://pokeapi.co/api/v2'
 # Betroffene National-Dex 1..493: Kyogre 382, Groudon 383 (je 5), Dialga 483, Palkia 484 (je 30).
 $GEN4_CATCH = @{ 382 = 5; 383 = 5; 483 = 30; 484 = 30 }
 
+# Gen-4-Basiswerte-Overrides: in Gen 6 (X/Y) gebufft; PokeAPI liefert nur die neuen Werte.
+# Reihenfolge je Array: HP, Angriff, Verteidigung, Sp.-Angriff, Sp.-Verteidigung, Initiative. (Quelle: Serebii updatedstats)
+$GEN4_STATS = @{
+  12=@(60,45,50,80,80,70);   15=@(65,80,40,45,80,75);   18=@(83,80,75,70,70,91)
+  25=@(35,55,30,50,40,90);   26=@(60,90,55,90,80,100);  31=@(90,82,87,75,85,76)
+  34=@(81,92,77,85,75,85);   36=@(95,70,73,85,90,60);   40=@(140,70,45,75,50,45)
+  45=@(75,80,85,100,90,50);  62=@(90,85,95,70,90,70);   65=@(55,50,45,135,85,120)
+  71=@(80,105,65,100,60,70); 76=@(80,110,130,55,65,45); 181=@(90,75,75,115,90,55)
+  182=@(75,80,85,90,100,50); 184=@(100,50,80,50,80,50); 189=@(75,55,70,55,85,110)
+  267=@(60,70,50,90,50,65);  295=@(104,91,63,91,63,68); 398=@(85,120,70,50,50,100)
+  407=@(60,70,55,125,105,90)
+}
+
 if (-not (Test-Path $CacheDir)) { New-Item -ItemType Directory -Path $CacheDir -Force | Out-Null }
 if (-not $OutFile) { $OutFile = Join-Path $PSScriptRoot '..\pokedex.js' }
 
@@ -328,6 +341,24 @@ for ($id = $StartId; $id -le $EndId; $id++) {
     [void]$sb.Append('types: [').Append((($typesDe | ForEach-Object { '"' + (Esc $_) + '"' }) -join ', ')).Append('], ')
     $capture = if ($GEN4_CATCH.ContainsKey($id)) { $GEN4_CATCH[$id] } elseif ($null -ne $sp.capture_rate) { [int]$sp.capture_rate } else { 0 }
     [void]$sb.Append('catchRate: ').Append($capture).Append(',')
+    # Basiswerte (Gen-4-Override falls in Gen 6 geaendert)
+    if ($GEN4_STATS.ContainsKey($id)) {
+      $a = $GEN4_STATS[$id]; $bs = @{ hp=$a[0]; atk=$a[1]; def=$a[2]; spa=$a[3]; spd=$a[4]; spe=$a[5] }
+    } else {
+      $bs = @{ hp=0; atk=0; def=0; spa=0; spd=0; spe=0 }
+      foreach ($s in $p.stats) {
+        switch ($s.stat.name) {
+          'hp'              { $bs.hp  = [int]$s.base_stat }
+          'attack'          { $bs.atk = [int]$s.base_stat }
+          'defense'         { $bs.def = [int]$s.base_stat }
+          'special-attack'  { $bs.spa = [int]$s.base_stat }
+          'special-defense' { $bs.spd = [int]$s.base_stat }
+          'speed'           { $bs.spe = [int]$s.base_stat }
+        }
+      }
+    }
+    $bst = $bs.hp + $bs.atk + $bs.def + $bs.spa + $bs.spd + $bs.spe
+    [void]$sb.Append(' baseStats: { hp: ' + $bs.hp + ', atk: ' + $bs.atk + ', def: ' + $bs.def + ', spa: ' + $bs.spa + ', spd: ' + $bs.spd + ', spe: ' + $bs.spe + ' }, bst: ' + $bst + ',')
     if ($incomplete) { [void]$sb.Append(' _incomplete: true,') }
     [void]$sb.Append("`n")
 

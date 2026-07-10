@@ -254,6 +254,26 @@ input { font-family: inherit; font-size: 16px; }
 .move-table td.tm { width: 64px; color: var(--blue); font-weight: 700; white-space: nowrap; }
 .move-table tr:last-child td { border-bottom: none; }
 .dex-empty { color: var(--text-dim); font-style: italic; padding: 6px 0; }
+
+/* ---- Basiswerte ---- */
+.stat-table { width: 100%; border-collapse: collapse; }
+.stat-table td { padding: 4px 6px; vertical-align: middle; }
+.st-l { color: var(--text-dim); font-size: .82rem; width: 72px; }
+.st-v { font-weight: 700; width: 36px; text-align: right; }
+.st-bar { width: 100%; }
+.st-bar span { display: block; height: 9px; border-radius: 5px; min-width: 4px; }
+.st-bar .s-hi  { background: var(--green); }
+.st-bar .s-mid { background: var(--blue); }
+.st-bar .s-lo  { background: var(--yellow); }
+
+/* ---- Wesen-Tabelle ---- */
+.nat-table { width: 100%; border-collapse: collapse; }
+.nat-table td { padding: 8px 8px; border-bottom: 1px solid var(--border); font-size: .9rem; }
+.nat-table tr:last-child td { border-bottom: none; }
+.nat-name { font-weight: 700; width: 92px; }
+.nat-up { color: #8ef0b8; font-weight: 600; white-space: nowrap; }
+.nat-down { color: var(--accent-2); font-weight: 600; white-space: nowrap; }
+.nat-neutral { color: var(--text-dim); }
 .dex-link { display: block; text-align: center; margin-top: 16px; padding: 13px; border-radius: 10px; background: var(--bg-elev); color: var(--blue); text-decoration: none; font-weight: 700; }
 .dex-notfound { padding: 14px; background: var(--bg-card-2); border-radius: 10px; color: var(--text-dim); }
 .lv1-tag { font-size: .68rem; color: var(--text-dim); margin-left: 4px; }
