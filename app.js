@@ -203,8 +203,14 @@
       list.innerHTML = '<li class="card" style="color:var(--text-dim);text-align:center">Noch keine Pokémon. Setze eine Begegnung auf „Gefangen" oder tippe auf „+ Pokémon hinzufügen".</li>';
       return;
     }
+    // Familien-bewusste Suche: Treffer, wenn der Begriff auf IRGENDEIN Mitglied
+    // der Entwicklungsfamilie passt (z. B. "Despotar" findet ein eingetragenes Pupitar).
     const q = (ui.teamSearch || '').toLowerCase().trim();
-    const team = q ? state.team.filter(p => (p.species || '').toLowerCase().includes(q)) : state.team;
+    const team = !q ? state.team : state.team.filter(p => {
+      const fam = familyOf(p.species);
+      const names = fam ? fam.members.map(m => m.name.toLowerCase()) : [(p.species || '').toLowerCase()];
+      return names.some(n => n.includes(q));
+    });
     if (!team.length) {
       list.innerHTML = `<li class="card" style="color:var(--text-dim);text-align:center">Keine Treffer für „${esc(ui.teamSearch)}".</li>`;
       return;
