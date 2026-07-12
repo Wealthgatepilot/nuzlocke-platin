@@ -137,7 +137,7 @@
   }
 
   // ===================== UI-Status =====================
-  const ui = { tab: 'progress', subtab: 'routes', openMarkets: new Set(), teamSearch: '' };
+  const ui = { tab: 'progress', subtab: 'routes', openMarkets: new Set(), teamSearch: '', pokedexSearch: '' };
 
   const ENC_CATS = {
     routes:     { label: 'Routen',     hasNote: false, honey: false },
@@ -299,6 +299,7 @@
           <input class="enc-species-input" type="text" placeholder="Spezies (randomisiert)…"
                  value="${esc(it.species)}" data-action="enc-species" data-id="${it.id}">
           ${hasSp ? `<button class="mini-btn" data-action="dex" data-species="${esc(it.species)}">ℹ️</button>` : ''}
+          ${hasSp ? `<button class="mini-btn" data-action="catch" data-species="${esc(it.species)}" title="Fangrate berechnen">🧮</button>` : ''}
           <button class="status-pill ${st.cls}" data-action="enc-status" data-id="${it.id}">${st.label}</button>
         </div>
         ${dupeHtml}
@@ -337,6 +338,27 @@
         </div>
       </li>`;
     }).join('');
+  }
+
+  // ===================== Pokémon-Suche (globaler Pokédex) =====================
+  function renderSearch() {
+    const list = $('#searchResults');
+    if (typeof POKEDEX === 'undefined') { list.innerHTML = ''; return; }
+    const q = normKey(ui.pokedexSearch);
+    if (!q) { list.innerHTML = '<li class="card" style="color:var(--text-dim);text-align:center">Tippe einen Pokémon-Namen ein…</li>'; return; }
+    const matches = Object.keys(POKEDEX).map(k => POKEDEX[k])
+      .filter(p => normKey(p.name).includes(q) || (p.nameEn || '').toLowerCase().includes(q))
+      .sort((a, b) => a.id - b.id);
+    if (!matches.length) { list.innerHTML = '<li class="card" style="color:var(--text-dim);text-align:center">Keine Treffer.</li>'; return; }
+    const shown = matches.slice(0, 60);
+    list.innerHTML = shown.map(p =>
+      `<li class="card team-card" data-action="dex" data-species="${esc(p.name)}" style="cursor:pointer">
+        <div class="team-main">
+          <div class="team-nick">${esc(p.name)} <span class="dex-no">#${String(p.id).padStart(3, '0')}</span></div>
+          <div class="team-species">${p.types.map(t => esc(t)).join(' · ')}</div>
+        </div>
+        <button class="mini-btn" data-action="dex" data-species="${esc(p.name)}">ℹ️</button>
+      </li>`).join('') + (matches.length > 60 ? `<li class="card" style="color:var(--text-dim);text-align:center">… ${matches.length - 60} weitere – tippe genauer.</li>` : '');
   }
 
   // ===================== Pokédex-Modal =====================
@@ -586,6 +608,7 @@
       case 'dex': openDex(el.dataset.species); break;
       case 'dex-back': dexBack(); break;
       case 'natures': openNatures(); break;
+      case 'catch': openCatch(el.dataset.species); break;
 
       // ---- Checkpoints ----
       case 'cp-toggle': {
@@ -916,27 +939,50 @@
        ${forN ? `<div class="cr-detail">≈ ${forN} ${forN === 1 ? 'Ball' : 'Bälle'} für 95 % Gesamt-Chance</div>` : ''}`;
   }
 
-  function initCatch() {
+  function catchFormHtml() {
+    return `<div class="dex-head"><span class="dex-name">Fangraten-Rechner</span></div>
+      <div class="cr-form">
+        <label class="cr-label">Pokémon (Spezies)
+          <input id="crSpecies" type="text" placeholder="z. B. Staralili" autocomplete="off"></label>
+        <div id="crRateHint" class="cr-hint"></div>
+        <label class="cr-label">Basis-Fangrate (0–255, editierbar)
+          <input id="crRate" type="number" min="0" max="255" value="45"></label>
+        <label class="cr-label">Rest-KP: <span id="crHpVal">100 %</span>
+          <input id="crHp" type="range" min="1" max="100" value="100"></label>
+        <label class="cr-label">Status
+          <select id="crStatus">
+            <option value="1">Kein</option>
+            <option value="2">Schlaf / Eingefroren (×2)</option>
+            <option value="1.5">Paralyse / Gift / Verbrennung (×1,5)</option>
+          </select></label>
+        <label class="cr-label">Ball <select id="crBall"></select></label>
+        <div id="crSituational"></div>
+      </div>
+      <div id="crResult" class="cr-result"></div>`;
+  }
+  function loadCrRate(species) {
+    const d = species ? dexLookup(species) : null;
+    const hint = $('#crRateHint');
+    if (d) { $('#crRate').value = d.catchRate; hint.textContent = `${d.name}: Fangrate ${d.catchRate}`; hint.className = 'cr-hint found'; }
+    else if ((species || '').trim()) { hint.textContent = 'Nicht gefunden – Fangrate manuell eintragen.'; hint.className = 'cr-hint'; }
+    else { hint.textContent = ''; hint.className = 'cr-hint'; }
+  }
+  // Fangrechner als Modal, vorbefüllt mit der Spezies der Begegnung
+  function openCatch(species) {
+    dexStack = []; dexCurrent = null;
+    $('#modalContent').innerHTML = catchFormHtml();
     const sel = $('#crBall');
     sel.innerHTML = BALLS.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
+    $('#crSpecies').value = species || '';
+    loadCrRate(species);
     renderCatchSituational(ballById(sel.value));
-    $('#crSpecies').addEventListener('input', () => {
-      const d = dexLookup($('#crSpecies').value);
-      const hint = $('#crRateHint');
-      if (d) { $('#crRate').value = d.catchRate; hint.textContent = `${d.name}: Fangrate ${d.catchRate}`; hint.className = 'cr-hint found'; }
-      else if ($('#crSpecies').value.trim()) { hint.textContent = 'Nicht gefunden – Fangrate manuell eintragen.'; hint.className = 'cr-hint'; }
-      else { hint.textContent = ''; }
-      renderCatchSituational(ballById(sel.value));
-      recalcCatch();
-    });
+    $('#crSpecies').addEventListener('input', () => { loadCrRate($('#crSpecies').value); renderCatchSituational(ballById(sel.value)); recalcCatch(); });
     sel.addEventListener('change', () => { renderCatchSituational(ballById(sel.value)); recalcCatch(); });
-    ['crRate', 'crHp', 'crStatus'].forEach(idd => {
-      $('#' + idd).addEventListener('input', recalcCatch);
-      $('#' + idd).addEventListener('change', recalcCatch);
-    });
+    ['crRate', 'crHp', 'crStatus'].forEach(idd => { $('#' + idd).addEventListener('input', recalcCatch); $('#' + idd).addEventListener('change', recalcCatch); });
     $('#crSituational').addEventListener('input', recalcCatch);
     $('#crSituational').addEventListener('change', recalcCatch);
     recalcCatch();
+    $('#modalOverlay').hidden = false;
   }
 
   // Ältere Speicherstände ohne neue Kategorien / mit alten Fossil-Namen nachrüsten
@@ -963,6 +1009,12 @@
         if (OLD_FOSSIL_NAMES[f.name]) { f.name = OLD_FOSSIL_NAMES[f.name]; changed = true; }
       });
       if (changed) save('encounters');
+    }
+    // Top 4 / Champion nachrüsten, falls noch nicht vorhanden
+    if (state.checkpoints && !state.checkpoints.some(c => c.type === 'e4' || c.type === 'champion')) {
+      const e4 = DEFAULT_DATA.checkpoints.filter(c => c.type === 'e4' || c.type === 'champion');
+      state.checkpoints = state.checkpoints.concat(clone(e4));
+      save('checkpoints');
     }
   }
 
@@ -1017,8 +1069,9 @@
   ensureStructure();
   buildFamilyIndex();
   renderAll();
-  initCatch();
+  renderSearch();
   $('#teamSearch').addEventListener('input', e => { ui.teamSearch = e.target.value; renderTeam(); });
+  $('#pokedexSearch').addEventListener('input', e => { ui.pokedexSearch = e.target.value; renderSearch(); });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

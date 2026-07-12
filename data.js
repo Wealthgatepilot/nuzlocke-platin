@@ -18,6 +18,11 @@ const DEFAULT_DATA = {
     { id: 'cp11', type: 'gym',    label: 'Arena 7 – Frida',          location: 'Blizzach',    aceLevel: 44, completed: false, gymType: 'Eis'     },
     { id: 'cp12', type: 'rival',  label: 'Barry – Speerspitze',      location: 'Speerspitze', aceLevel: 44, completed: false },
     { id: 'cp13', type: 'gym',    label: 'Arena 8 – Volkner',        location: 'Sonnewik',    aceLevel: 50, completed: false, gymType: 'Elektro' },
+    { id: 'cp14', type: 'e4',       label: 'Top 4 – Herbaro',        location: 'Pokémon-Liga', aceLevel: 53, completed: false, gymType: 'Käfer'  },
+    { id: 'cp15', type: 'e4',       label: 'Top 4 – Teresa',         location: 'Pokémon-Liga', aceLevel: 55, completed: false, gymType: 'Boden'  },
+    { id: 'cp16', type: 'e4',       label: 'Top 4 – Ignaz',          location: 'Pokémon-Liga', aceLevel: 57, completed: false, gymType: 'Feuer'  },
+    { id: 'cp17', type: 'e4',       label: 'Top 4 – Kajus',          location: 'Pokémon-Liga', aceLevel: 59, completed: false, gymType: 'Psycho' },
+    { id: 'cp18', type: 'champion', label: 'Champion – Cynthia',     location: 'Pokémon-Liga', aceLevel: 62, completed: false },
   ],
 
   team: [],

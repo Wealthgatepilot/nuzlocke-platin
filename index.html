@@ -77,34 +77,12 @@
       <button class="add-btn" data-action="market-add">+ Stadt hinzufügen</button>
     </section>
 
-    <!-- ---- Fangrate ---- -->
-    <section id="tab-catch" class="tab-panel">
-      <h2 class="panel-title">Fangraten-Rechner</h2>
-      <p class="hint">Fangchance in Platin (Gen-4-Formel). Spezies eintippen – Fangrate wird automatisch geladen.</p>
-      <div class="cr-form">
-        <label class="cr-label">Pokémon (Spezies)
-          <input id="crSpecies" type="text" placeholder="z. B. Staralili" autocomplete="off">
-        </label>
-        <div id="crRateHint" class="cr-hint"></div>
-        <label class="cr-label">Basis-Fangrate (0–255, editierbar)
-          <input id="crRate" type="number" min="0" max="255" value="45">
-        </label>
-        <label class="cr-label">Rest-KP: <span id="crHpVal">100 %</span>
-          <input id="crHp" type="range" min="1" max="100" value="100">
-        </label>
-        <label class="cr-label">Status
-          <select id="crStatus">
-            <option value="1">Kein</option>
-            <option value="2">Schlaf / Eingefroren (×2)</option>
-            <option value="1.5">Paralyse / Gift / Verbrennung (×1,5)</option>
-          </select>
-        </label>
-        <label class="cr-label">Ball
-          <select id="crBall"></select>
-        </label>
-        <div id="crSituational"></div>
-      </div>
-      <div id="crResult" class="cr-result"></div>
+    <!-- ---- Suche ---- -->
+    <section id="tab-search" class="tab-panel">
+      <h2 class="panel-title">Pokémon-Suche</h2>
+      <p class="hint">Alle Pokémon durchsuchen und Infos ansehen (Basiswerte, Attacken, Schwächen …).</p>
+      <input id="pokedexSearch" class="search-box" type="search" placeholder="🔍 Pokémon suchen…" autocomplete="off">
+      <ul id="searchResults" class="card-list"></ul>
     </section>
 
   </main>
@@ -115,7 +93,7 @@
     <button class="nav-btn" data-nav="team"><span class="nav-ico">⚔️</span><span>Team</span></button>
     <button class="nav-btn" data-nav="encounters"><span class="nav-ico">🎯</span><span>Begegnungen</span></button>
     <button class="nav-btn" data-nav="markets"><span class="nav-ico">🛒</span><span>Märkte</span></button>
-    <button class="nav-btn" data-nav="catch"><span class="nav-ico">🧮</span><span>Fangrate</span></button>
+    <button class="nav-btn" data-nav="search"><span class="nav-ico">🔍</span><span>Suche</span></button>
   </nav>
 
   <!-- ============ MODAL (Pokédex) ============ -->
